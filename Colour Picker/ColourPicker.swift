@@ -42,6 +42,21 @@ enum ColourPickerDirection {
 			return spacing * -1
 		}
 	}
+	private var keyWindow: UIWindow {
+		return UIApplication.sharedApplication().keyWindow!
+	}
+	
+	private var _backgroundView: UIView?
+	private var backgroundView: UIView {
+		if _backgroundView == nil {
+			_backgroundView = UIView(frame: keyWindow.bounds)
+			_backgroundView?.setTranslatesAutoresizingMaskIntoConstraints(false)
+			
+			_backgroundView?.alpha = 0.0
+		}
+		
+		return _backgroundView!
+	}
 	
 	//MARK: Colours
 	var colours: Array<UIColor> {
@@ -133,8 +148,10 @@ enum ColourPickerDirection {
 			_colourButtons = Array<ColourPickerButton>()
 			
 			for colour in self.colours {
-				let button = ColourPickerButton()
+				let button = ColourPickerButton(frame: self.frame)
 				button.colour = colour
+				button.borderColor = self.borderColour
+				button.borderWidth = self.borderWidth
 				_colourButtons! += [button]
 			}
 		}
@@ -146,19 +163,31 @@ enum ColourPickerDirection {
 		if _currentColourButton == nil {
 			_currentColourButton = ColourPickerButton()
 			
-			if currentColour != nil {
-				_currentColourButton!.colour = currentColour!
-			} else {
-				_currentColourButton!.colour = colours[0]
-			}
+			_currentColourButton!.colour = self.currentColour
+			_currentColourButton!.borderColor = self.borderColour
+			_currentColourButton!.borderWidth = self.borderWidth
+			
+			_currentColourButton!.addTarget(self, action: "didPressSelectedColourButton:", forControlEvents: .TouchUpInside)
 		}
 		return _currentColourButton!
 	}
 	
 	//MARK: Other Variables
 	var directionOfDisplay: ColourPickerDirection = .CounterClockwise
-	var radius: CGFloat = 20.0
-	var currentColour: UIColor?
+	var radius: CGFloat = 60.0
+	
+	@IBInspectable var startColour: UIColor = .redColor()
+	private var _currentColour: UIColor?
+	var currentColour: UIColor {
+		if _currentColour == nil {
+			_currentColour = startColour
+		}
+		
+		return _currentColour!
+	}
+	
+	@IBInspectable var borderColour: UIColor = .whiteColor()
+	@IBInspectable var borderWidth: CGFloat = 2.0
 	
 	
 	//MARK: - Initialisers
@@ -199,9 +228,60 @@ enum ColourPickerDirection {
 		super.init(coder: aDecoder)
 	}
 	
+	
+	//MARK: - Drawing the view
 	override func drawRect(rect: CGRect) {
 		self.currentColourButton.frame = self.bounds
 		self.addSubview(self.currentColourButton)
+	}
+	
+	override func intrinsicContentSize() -> CGSize {
+		return CGSizeMake(30.0, 30.0)
+	}
+	
+	
+	//MARK: - Setters
+	func setCurrentColour(colour: UIColor, animated: Bool) {
+		self._currentColour = colour
+		self._currentColourButton = nil
+		self.setNeedsDisplay()
+	}
+	
+	
+	//MARK: - Actions
+	func didPressSelectedColourButton(sender: UIButton) {
+//		self.keyWindow.addSubview(self.backgroundView)
+//		var viewsDict: Dictionary<String, UIView> = ["backgroundView" : backgroundView]
+//		var constraints = NSLayoutConstraint.constraintsWithVisualFormat("H:|[backgroundView]|", options: nil, metrics: nil, views: viewsDict)
+//		constraints += NSLayoutConstraint.constraintsWithVisualFormat("V:|[backgroundView]|", options: nil, metrics: nil, views: viewsDict)
+//		self.keyWindow.addConstraints(constraints)
+//		
+//		[UIView.animateWithDuration(0.5, animations: { () -> Void in
+//			self.backgroundView.alpha = 0.4
+//		})]
+		
+		let centerInKeyWindow = keyWindow.convertPoint(self.center, toWindow: self.keyWindow)
+		let newCenter = CGPointMake(centerInKeyWindow.x, centerInKeyWindow.y - self.radius)
+		
+//		self.keyWindow.addSubview(self.currentColourButton)
+//		self.currentColourButton.center = centerInKeyWindow
+		
+		var count = 0
+		
+		for buttonToAdd in self.colourButtons {
+			self.keyWindow.addSubview(buttonToAdd)
+			buttonToAdd.center = centerInKeyWindow
+			buttonToAdd.layer.anchorPoint = CGPointMake(0.5, (radius / buttonToAdd.frame.size.height))
+//			buttonToAdd.layer.anchorPoint = centerInKeyWindow
+			
+			buttonToAdd.backgroundColor = .redColor()
+			
+			let rotation = CGAffineTransformMakeRotation(self.spacingAngle * CGFloat(count))
+			buttonToAdd.transform = rotation
+			
+			println("Tried: \(buttonToAdd.frame)")
+			count++
+		}
 	}
 }
 
@@ -211,32 +291,80 @@ enum ColourPickerButtonShape {
 }
 
 @IBDesignable class ColourPickerButton: UIButton {
-	@IBInspectable var colour: UIColor = .redColor()
+	var colour: UIColor = .redColor()
+	var borderColor: UIColor = .whiteColor()
+	var borderWidth: CGFloat = 1.0
 	
-	//	init(colour: UIColor, frame: CGRect) {
-	//		self.colour = colour
-	//		super.init(frame: frame)
-	//	}
-	//
-	//	override init(frame: CGRect) {
-	//		self.colour = .redColor()
-	//		super.init(frame: frame)
-	//	}
-	//
-	//	required init(coder aDecoder: NSCoder) {
-	//		self.colour = .redColor()
-	//		super.init(coder: aDecoder)
-	//	}
+	private var _backgroundColor: UIColor?
+	override var backgroundColor: UIColor? {
+		get {
+			if _backgroundColor == nil {
+				_backgroundColor = .clearColor()
+			}
+			
+			return _backgroundColor!
+		}
+		set {
+			_backgroundColor = newValue
+		}
+	}
 	
 	override func drawRect(rect: CGRect) {
-		var path = UIBezierPath(ovalInRect: rect)
+		let context = UIGraphicsGetCurrentContext()
+		let newRect = rect.rectThatFitsInsideSelfWithStrokeWidth(borderWidth)
+		
+		self.borderColor.setStroke()
 		self.colour.setFill()
-		path.fill()
+		CGContextSetLineWidth(context, borderWidth)
+		CGContextFillEllipseInRect(context, newRect)
+		CGContextStrokeEllipseInRect(context, newRect)
 	}
 }
 
 extension Int {
 	var degreesToRadians : CGFloat {
 		return CGFloat(self) * CGFloat(M_PI) / 180.0
+	}
+}
+
+extension CGRect {
+	func rectThatFitsInsideSelfWithStrokeWidth(width: CGFloat) -> CGRect {
+		return CGRectMake(self.origin.x + width, self.origin.y + width, self.width - width * 2, self.height - width * 2)
+	}
+}
+
+extension UIColor {
+	func adjustLightness(value: CGFloat) -> UIColor {
+		let newRed = redValue * value
+		let newGreen = greenValue * value
+		let newBlue = blueValue * value
+		return UIColor(red: newRed, green: newGreen, blue: newBlue, alpha: 1.0)
+	}
+	
+	var RGBValues: (red: CGFloat, green: CGFloat, blue: CGFloat) {
+		let components = CGColorGetComponents(self.CGColor)
+		
+		let red = components[0]
+		let green = components[1]
+		let blue = components[2]
+		
+		return (red, green, blue)
+	}
+	
+	var redValue: CGFloat {
+		return self.RGBValues.red
+	}
+	
+	var greenValue: CGFloat {
+		return self.RGBValues.green
+	}
+	
+	var blueValue: CGFloat {
+		return self.RGBValues.blue
+	}
+	
+	func greyscaleVersion() -> UIColor {
+		let newValue = (redValue + greenValue + blueValue) / 3
+		return UIColor(red: newValue, green: newValue, blue: newValue, alpha: 1.0)
 	}
 }
