@@ -92,7 +92,21 @@ enum ColourPickerDirection {
 	
 	
 	//MARK: Angles
-	var startAngle: Int
+	var _startAngle: Int!
+	var startAngle: Int {
+		get {
+			var returnAngle = _startAngle
+			
+			if self.directionOfDisplay == .Clockwise {
+				return _startAngle - 90
+			} else {
+				return _startAngle + 270
+			}
+		}
+		set {
+			_startAngle = newValue
+		}
+	}
 	
 	private var _endAngle: Int?
 	var endAngle: Int {
@@ -119,25 +133,35 @@ enum ColourPickerDirection {
 	private var _angleOfDisplay: Int?
 	var angleOfDisplay: Int {
 		get {
+			var proposedAngle = 180
+			
 			if _angleOfDisplay != nil {
-				return _angleOfDisplay!
+				proposedAngle = _angleOfDisplay!
 			} else if _endAngle != nil {
-				return endAngle - startAngle
-			} else {
-				return 180
+				proposedAngle = endAngle - startAngle
 			}
+			
+			if proposedAngle < 0 {
+				proposedAngle *= -1
+			}
+			
+			let requiredDistanceFor360 = (360/self.colours.count) * (self.colours.count - 1)
+			
+			if proposedAngle > requiredDistanceFor360 {
+				proposedAngle = requiredDistanceFor360
+			}
+			
+			return proposedAngle
 		}
 		set {
-			if newValue < 359 && newValue > 0 {
-				_angleOfDisplay = newValue
-			} else if newValue < 0 {
-				_angleOfDisplay = 0
-			} else {
-				_angleOfDisplay = 359
-			}
+			_angleOfDisplay = newValue
 			
 			_endAngle = nil
 		}
+	}
+	
+	var animator: UIDynamicAnimator {
+		return UIDynamicAnimator(referenceView: self.keyWindow)
 	}
 	
 	//MARK: Buttons
@@ -189,6 +213,8 @@ enum ColourPickerDirection {
 	@IBInspectable var borderColour: UIColor = .whiteColor()
 	@IBInspectable var borderWidth: CGFloat = 2.0
 	
+	var behavioursToAdd = Array<UISnapBehavior>()
+	
 	
 	//MARK: - Initialisers
 	//// All the angles in here should be done as integers, up to the value of 359°
@@ -198,34 +224,34 @@ enum ColourPickerDirection {
 	
 	init(colours: Array<UIColor>, startAngle: Int, angleOfDisplay: Int, frame: CGRect) {
 		self.colours = colours
-		self.startAngle = startAngle
 		
 		super.init(frame: frame)
 		
+		self.startAngle = startAngle
 		self.angleOfDisplay = angleOfDisplay
 	}
 	
 	init(colours: Array<UIColor>, startAngle: Int, endAngle: Int, frame: CGRect) {
 		self.colours = colours
-		self.startAngle = startAngle
 		
 		super.init(frame: frame)
 		
+		self.startAngle = startAngle
 		self.endAngle = endAngle
 	}
 	
 	override init(frame: CGRect) {
 		self.colours = [.redColor(), .greenColor()]
-		self.startAngle = 0
 		
 		super.init(frame: frame)
+		self.startAngle = 0
 	}
 	
 	required init(coder aDecoder: NSCoder) {
 		self.colours = [.redColor(), .greenColor()]
-		self.startAngle = 0
 		
 		super.init(coder: aDecoder)
+		self.startAngle = 0
 	}
 	
 	
@@ -267,20 +293,56 @@ enum ColourPickerDirection {
 //		self.currentColourButton.center = centerInKeyWindow
 		
 		var count = 0
+		var points = Array<CGPoint>()
 		
+		//put them on screen
 		for buttonToAdd in self.colourButtons {
+			buttonToAdd.setTranslatesAutoresizingMaskIntoConstraints(false)
 			self.keyWindow.addSubview(buttonToAdd)
 			buttonToAdd.center = centerInKeyWindow
-			buttonToAdd.layer.anchorPoint = CGPointMake(0.5, (radius / buttonToAdd.frame.size.height))
-//			buttonToAdd.layer.anchorPoint = centerInKeyWindow
+//			buttonToAdd.layer.anchorPoint = CGPointMake(0.5, (radius / buttonToAdd.frame.size.height))
+////			buttonToAdd.layer.anchorPoint = centerInKeyWindow
+//			
+//			buttonToAdd.backgroundColor = .redColor()
+//			
+//			let rotation = CGAffineTransformMakeRotation(self.spacingAngle * CGFloat(count))
+//			buttonToAdd.transform = rotation
+//			
+//			println("Tried: \(buttonToAdd.frame)")
+//			
+////			let scale = CGAffineTransformMakeScale(0.0, 0.0)
+////			buttonToAdd.transform = scale
+//			
+//			buttonToAdd.setTranslatesAutoresizingMaskIntoConstraints(false)
+//			
+//			buttonToAdd.configureSnapBehaviour()
+//			
+//			println("Tried 2: \(buttonToAdd.frame)")
+//			
+//			behavioursToAdd += [buttonToAdd.snapBehaviour!]
+//			
+//			buttonToAdd.layer.anchorPoint = CGPointMake(0.5, 0.5)
+//			
+//			
+//			println("Tried 3: \(buttonToAdd.frame)")
+//			count++
 			
-			buttonToAdd.backgroundColor = .redColor()
+			let currentAngle = self.startAngle.degreesToRadians + self.spacingAngle * CGFloat(count)
 			
-			let rotation = CGAffineTransformMakeRotation(self.spacingAngle * CGFloat(count))
-			buttonToAdd.transform = rotation
+			let newX = centerInKeyWindow.x + self.radius * cos(currentAngle)
+			let newY = centerInKeyWindow.y + self.radius * sin(currentAngle)
 			
-			println("Tried: \(buttonToAdd.frame)")
+//			let snapBehaviour = UISnapBehavior(item: buttonToAdd, snapToPoint: CGPointMake(newX, newY))
+//			behavioursToAdd += [snapBehaviour]
+			
+			buttonToAdd.center = CGPointMake(newX, newY)
+			
 			count++
+		}
+		
+		for behaviour in behavioursToAdd {
+			println(behaviour)
+			self.animator.addBehavior(behaviour)
 		}
 	}
 }
@@ -294,6 +356,8 @@ enum ColourPickerButtonShape {
 	var colour: UIColor = .redColor()
 	var borderColor: UIColor = .whiteColor()
 	var borderWidth: CGFloat = 1.0
+	
+	var snapBehaviour: UISnapBehavior?
 	
 	private var _backgroundColor: UIColor?
 	override var backgroundColor: UIColor? {
@@ -318,6 +382,15 @@ enum ColourPickerButtonShape {
 		CGContextSetLineWidth(context, borderWidth)
 		CGContextFillEllipseInRect(context, newRect)
 		CGContextStrokeEllipseInRect(context, newRect)
+	}
+	
+	func configureSnapBehaviour() {
+		self.snapBehaviour = UISnapBehavior(item: self, snapToPoint: self.center)
+		println(self.center)
+	}
+	
+	override func intrinsicContentSize() -> CGSize {
+		return CGSizeMake(30.0, 30.0)
 	}
 }
 

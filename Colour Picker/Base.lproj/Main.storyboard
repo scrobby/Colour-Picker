@@ -2,7 +2,6 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -27,7 +26,7 @@
                                 </connections>
                             </button>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3Lb-Yc-LNP" customClass="ColourPicker" customModule="Colour_Picker" customModuleProvider="target">
-                                <rect key="frame" x="554" y="285" width="30" height="30"/>
+                                <rect key="frame" x="285" y="285" width="30" height="30"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="color" keyPath="startColour">
@@ -41,9 +40,9 @@
                         </subviews>
                         <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="3Lb-Yc-LNP" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="KNI-Zb-epr"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="LGN-ey-P7R" secondAttribute="bottom" constant="20" id="XGh-CJ-1Hg"/>
                             <constraint firstAttribute="centerX" secondItem="LGN-ey-P7R" secondAttribute="centerX" id="Ye7-Sk-Kc4"/>
+                            <constraint firstAttribute="centerX" secondItem="3Lb-Yc-LNP" secondAttribute="centerX" id="cg5-Dq-Cey"/>
                             <constraint firstAttribute="centerY" secondItem="3Lb-Yc-LNP" secondAttribute="centerY" id="tbm-Fh-MdG"/>
                         </constraints>
                     </view>
