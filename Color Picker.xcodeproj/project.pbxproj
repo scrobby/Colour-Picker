@@ -7,13 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C37E24B41B8F9E2F009E48BC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37E24B31B8F9E2F009E48BC /* AppDelegate.swift */; };
-		C37E24B61B8F9E2F009E48BC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37E24B51B8F9E2F009E48BC /* ViewController.swift */; };
-		C37E24B91B8F9E2F009E48BC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C37E24B71B8F9E2F009E48BC /* Main.storyboard */; };
-		C37E24BB1B8F9E2F009E48BC /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C37E24BA1B8F9E2F009E48BC /* Images.xcassets */; };
-		C37E24BE1B8F9E2F009E48BC /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = C37E24BC1B8F9E2F009E48BC /* LaunchScreen.xib */; };
-		C37E24CA1B8F9E2F009E48BC /* Colour_PickerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37E24C91B8F9E2F009E48BC /* Colour_PickerTests.swift */; };
-		C37E24D41B8F9EC8009E48BC /* ColorPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37E24D31B8F9EC8009E48BC /* ColorPicker.swift */; };
+		C31C10DB1B90BA4F003C762E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31C10D81B90BA4F003C762E /* AppDelegate.swift */; };
+		C31C10DC1B90BA4F003C762E /* ColorPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31C10D91B90BA4F003C762E /* ColorPicker.swift */; };
+		C31C10DD1B90BA4F003C762E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31C10DA1B90BA4F003C762E /* ViewController.swift */; };
+		C31C10E01B90BA59003C762E /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = C31C10DE1B90BA59003C762E /* LaunchScreen.xib */; };
+		C31C10E31B90BA8F003C762E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C31C10E11B90BA8F003C762E /* Main.storyboard */; };
+		C31C10E71B90BAB4003C762E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C31C10E61B90BAB4003C762E /* Images.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,17 +26,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		C37E24AE1B8F9E2F009E48BC /* Colour Picker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Colour Picker.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		C37E24B21B8F9E2F009E48BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C37E24B31B8F9E2F009E48BC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		C37E24B51B8F9E2F009E48BC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		C37E24B81B8F9E2F009E48BC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		C37E24BA1B8F9E2F009E48BC /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		C37E24BD1B8F9E2F009E48BC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		C37E24C31B8F9E2F009E48BC /* Colour PickerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Colour PickerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		C37E24C81B8F9E2F009E48BC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C37E24C91B8F9E2F009E48BC /* Colour_PickerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colour_PickerTests.swift; sourceTree = "<group>"; };
-		C37E24D31B8F9EC8009E48BC /* ColorPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorPicker.swift; sourceTree = "<group>"; };
+		C31C10CE1B90B89C003C762E /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = "Color Picker/Info.plist"; sourceTree = SOURCE_ROOT; };
+		C31C10D01B90B8BA003C762E /* Color_PickerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Color_PickerTests.swift; path = "Color PickerTests/Color_PickerTests.swift"; sourceTree = SOURCE_ROOT; };
+		C31C10D21B90B8C0003C762E /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = "Color PickerTests/Info.plist"; sourceTree = SOURCE_ROOT; };
+		C31C10D81B90BA4F003C762E /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = "Color Picker/AppDelegate.swift"; sourceTree = SOURCE_ROOT; };
+		C31C10D91B90BA4F003C762E /* ColorPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ColorPicker.swift; path = "Color Picker/ColorPicker.swift"; sourceTree = SOURCE_ROOT; };
+		C31C10DA1B90BA4F003C762E /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ViewController.swift; path = "Color Picker/ViewController.swift"; sourceTree = SOURCE_ROOT; };
+		C31C10DF1B90BA59003C762E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = "Color Picker/Base.lproj/LaunchScreen.xib"; sourceTree = SOURCE_ROOT; };
+		C31C10E21B90BA8F003C762E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = "Color Picker/Base.lproj/Main.storyboard"; sourceTree = SOURCE_ROOT; };
+		C31C10E61B90BAB4003C762E /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "Color Picker/Images.xcassets"; sourceTree = SOURCE_ROOT; };
+		C37E24AE1B8F9E2F009E48BC /* Color Picker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Color Picker.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C37E24C31B8F9E2F009E48BC /* Color PickerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Color PickerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,8 +60,8 @@
 		C37E24A51B8F9E2F009E48BC = {
 			isa = PBXGroup;
 			children = (
-				C37E24B01B8F9E2F009E48BC /* Colour Picker */,
-				C37E24C61B8F9E2F009E48BC /* Colour PickerTests */,
+				C37E24B01B8F9E2F009E48BC /* Color Picker */,
+				C37E24C61B8F9E2F009E48BC /* Color PickerTests */,
 				C37E24AF1B8F9E2F009E48BC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -70,47 +69,49 @@
 		C37E24AF1B8F9E2F009E48BC /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C37E24AE1B8F9E2F009E48BC /* Colour Picker.app */,
-				C37E24C31B8F9E2F009E48BC /* Colour PickerTests.xctest */,
+				C37E24AE1B8F9E2F009E48BC /* Color Picker.app */,
+				C37E24C31B8F9E2F009E48BC /* Color PickerTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		C37E24B01B8F9E2F009E48BC /* Colour Picker */ = {
+		C37E24B01B8F9E2F009E48BC /* Color Picker */ = {
 			isa = PBXGroup;
 			children = (
-				C37E24B31B8F9E2F009E48BC /* AppDelegate.swift */,
-				C37E24B51B8F9E2F009E48BC /* ViewController.swift */,
-				C37E24D31B8F9EC8009E48BC /* ColorPicker.swift */,
-				C37E24B71B8F9E2F009E48BC /* Main.storyboard */,
-				C37E24BA1B8F9E2F009E48BC /* Images.xcassets */,
-				C37E24BC1B8F9E2F009E48BC /* LaunchScreen.xib */,
+				C31C10D81B90BA4F003C762E /* AppDelegate.swift */,
+				C31C10D91B90BA4F003C762E /* ColorPicker.swift */,
+				C31C10DA1B90BA4F003C762E /* ViewController.swift */,
+				C31C10DE1B90BA59003C762E /* LaunchScreen.xib */,
+				C31C10E11B90BA8F003C762E /* Main.storyboard */,
+				C31C10E61B90BAB4003C762E /* Images.xcassets */,
 				C37E24B11B8F9E2F009E48BC /* Supporting Files */,
 			);
+			name = "Color Picker";
 			path = "Colour Picker";
-			sourceTree = "<group>";
+			sourceTree = SOURCE_ROOT;
 		};
 		C37E24B11B8F9E2F009E48BC /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				C37E24B21B8F9E2F009E48BC /* Info.plist */,
+				C31C10CE1B90B89C003C762E /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		C37E24C61B8F9E2F009E48BC /* Colour PickerTests */ = {
+		C37E24C61B8F9E2F009E48BC /* Color PickerTests */ = {
 			isa = PBXGroup;
 			children = (
-				C37E24C91B8F9E2F009E48BC /* Colour_PickerTests.swift */,
+				C31C10D01B90B8BA003C762E /* Color_PickerTests.swift */,
 				C37E24C71B8F9E2F009E48BC /* Supporting Files */,
 			);
+			name = "Color PickerTests";
 			path = "Colour PickerTests";
 			sourceTree = "<group>";
 		};
 		C37E24C71B8F9E2F009E48BC /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				C37E24C81B8F9E2F009E48BC /* Info.plist */,
+				C31C10D21B90B8C0003C762E /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -118,9 +119,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		C37E24AD1B8F9E2F009E48BC /* Colour Picker */ = {
+		C37E24AD1B8F9E2F009E48BC /* Color Picker */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C37E24CD1B8F9E2F009E48BC /* Build configuration list for PBXNativeTarget "Colour Picker" */;
+			buildConfigurationList = C37E24CD1B8F9E2F009E48BC /* Build configuration list for PBXNativeTarget "Color Picker" */;
 			buildPhases = (
 				C37E24AA1B8F9E2F009E48BC /* Sources */,
 				C37E24AB1B8F9E2F009E48BC /* Frameworks */,
@@ -130,14 +131,14 @@
 			);
 			dependencies = (
 			);
-			name = "Colour Picker";
+			name = "Color Picker";
 			productName = "Colour Picker";
-			productReference = C37E24AE1B8F9E2F009E48BC /* Colour Picker.app */;
+			productReference = C37E24AE1B8F9E2F009E48BC /* Color Picker.app */;
 			productType = "com.apple.product-type.application";
 		};
-		C37E24C21B8F9E2F009E48BC /* Colour PickerTests */ = {
+		C37E24C21B8F9E2F009E48BC /* Color PickerTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C37E24D01B8F9E2F009E48BC /* Build configuration list for PBXNativeTarget "Colour PickerTests" */;
+			buildConfigurationList = C37E24D01B8F9E2F009E48BC /* Build configuration list for PBXNativeTarget "Color PickerTests" */;
 			buildPhases = (
 				C37E24BF1B8F9E2F009E48BC /* Sources */,
 				C37E24C01B8F9E2F009E48BC /* Frameworks */,
@@ -148,9 +149,9 @@
 			dependencies = (
 				C37E24C51B8F9E2F009E48BC /* PBXTargetDependency */,
 			);
-			name = "Colour PickerTests";
+			name = "Color PickerTests";
 			productName = "Colour PickerTests";
-			productReference = C37E24C31B8F9E2F009E48BC /* Colour PickerTests.xctest */;
+			productReference = C37E24C31B8F9E2F009E48BC /* Color PickerTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -164,6 +165,7 @@
 				TargetAttributes = {
 					C37E24AD1B8F9E2F009E48BC = {
 						CreatedOnToolsVersion = 6.4;
+						DevelopmentTeam = GNEJ6CX8CR;
 					};
 					C37E24C21B8F9E2F009E48BC = {
 						CreatedOnToolsVersion = 6.4;
@@ -171,7 +173,7 @@
 					};
 				};
 			};
-			buildConfigurationList = C37E24A91B8F9E2F009E48BC /* Build configuration list for PBXProject "Colour Picker" */;
+			buildConfigurationList = C37E24A91B8F9E2F009E48BC /* Build configuration list for PBXProject "Color Picker" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -184,8 +186,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				C37E24AD1B8F9E2F009E48BC /* Colour Picker */,
-				C37E24C21B8F9E2F009E48BC /* Colour PickerTests */,
+				C37E24AD1B8F9E2F009E48BC /* Color Picker */,
+				C37E24C21B8F9E2F009E48BC /* Color PickerTests */,
 			);
 		};
 /* End PBXProject section */
@@ -195,9 +197,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C37E24B91B8F9E2F009E48BC /* Main.storyboard in Resources */,
-				C37E24BE1B8F9E2F009E48BC /* LaunchScreen.xib in Resources */,
-				C37E24BB1B8F9E2F009E48BC /* Images.xcassets in Resources */,
+				C31C10E71B90BAB4003C762E /* Images.xcassets in Resources */,
+				C31C10E01B90BA59003C762E /* LaunchScreen.xib in Resources */,
+				C31C10E31B90BA8F003C762E /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -215,9 +217,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C37E24B61B8F9E2F009E48BC /* ViewController.swift in Sources */,
-				C37E24D41B8F9EC8009E48BC /* ColorPicker.swift in Sources */,
-				C37E24B41B8F9E2F009E48BC /* AppDelegate.swift in Sources */,
+				C31C10DD1B90BA4F003C762E /* ViewController.swift in Sources */,
+				C31C10DB1B90BA4F003C762E /* AppDelegate.swift in Sources */,
+				C31C10DC1B90BA4F003C762E /* ColorPicker.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -225,7 +227,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C37E24CA1B8F9E2F009E48BC /* Colour_PickerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -234,26 +235,26 @@
 /* Begin PBXTargetDependency section */
 		C37E24C51B8F9E2F009E48BC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = C37E24AD1B8F9E2F009E48BC /* Colour Picker */;
+			target = C37E24AD1B8F9E2F009E48BC /* Color Picker */;
 			targetProxy = C37E24C41B8F9E2F009E48BC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		C37E24B71B8F9E2F009E48BC /* Main.storyboard */ = {
+		C31C10DE1B90BA59003C762E /* LaunchScreen.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				C37E24B81B8F9E2F009E48BC /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		C37E24BC1B8F9E2F009E48BC /* LaunchScreen.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				C37E24BD1B8F9E2F009E48BC /* Base */,
+				C31C10DF1B90BA59003C762E /* Base */,
 			);
 			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+		C31C10E11B90BA8F003C762E /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C31C10E21B90BA8F003C762E /* Base */,
+			);
+			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -346,10 +347,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_FILE = "Colour Picker/Info.plist";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				INFOPLIST_FILE = "Color Picker/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Color Picker";
+				PROVISIONING_PROFILE = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -357,10 +364,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_FILE = "Colour Picker/Info.plist";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				INFOPLIST_FILE = "Color Picker/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Color Picker";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};
@@ -376,9 +388,9 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "Colour PickerTests/Info.plist";
+				INFOPLIST_FILE = "Color PickerTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Color PickerTests";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Colour Picker.app/Colour Picker";
 			};
 			name = Debug;
@@ -391,9 +403,9 @@
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "Colour PickerTests/Info.plist";
+				INFOPLIST_FILE = "Color PickerTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Color PickerTests";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Colour Picker.app/Colour Picker";
 			};
 			name = Release;
@@ -401,7 +413,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C37E24A91B8F9E2F009E48BC /* Build configuration list for PBXProject "Colour Picker" */ = {
+		C37E24A91B8F9E2F009E48BC /* Build configuration list for PBXProject "Color Picker" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C37E24CB1B8F9E2F009E48BC /* Debug */,
@@ -410,7 +422,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C37E24CD1B8F9E2F009E48BC /* Build configuration list for PBXNativeTarget "Colour Picker" */ = {
+		C37E24CD1B8F9E2F009E48BC /* Build configuration list for PBXNativeTarget "Color Picker" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C37E24CE1B8F9E2F009E48BC /* Debug */,
@@ -419,7 +431,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C37E24D01B8F9E2F009E48BC /* Build configuration list for PBXNativeTarget "Colour PickerTests" */ = {
+		C37E24D01B8F9E2F009E48BC /* Build configuration list for PBXNativeTarget "Color PickerTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C37E24D11B8F9E2F009E48BC /* Debug */,
