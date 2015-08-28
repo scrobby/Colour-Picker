@@ -160,9 +160,7 @@ enum ColourPickerDirection {
 		}
 	}
 	
-	var animator: UIDynamicAnimator {
-		return UIDynamicAnimator(referenceView: self.keyWindow)
-	}
+	var animator: UIDynamicAnimator?
 	
 	//MARK: Buttons
 	//TODO: Make it possible to add different shapes
@@ -213,7 +211,7 @@ enum ColourPickerDirection {
 	@IBInspectable var borderColour: UIColor = .whiteColor()
 	@IBInspectable var borderWidth: CGFloat = 2.0
 	
-	var behavioursToAdd = Array<UISnapBehavior>()
+	var behavioursToAdd = Array<AnyObject>()
 	
 	
 	//MARK: - Initialisers
@@ -273,76 +271,120 @@ enum ColourPickerDirection {
 		self.setNeedsDisplay()
 	}
 	
+	var displayed = false
 	
 	//MARK: - Actions
 	func didPressSelectedColourButton(sender: UIButton) {
-//		self.keyWindow.addSubview(self.backgroundView)
-//		var viewsDict: Dictionary<String, UIView> = ["backgroundView" : backgroundView]
-//		var constraints = NSLayoutConstraint.constraintsWithVisualFormat("H:|[backgroundView]|", options: nil, metrics: nil, views: viewsDict)
-//		constraints += NSLayoutConstraint.constraintsWithVisualFormat("V:|[backgroundView]|", options: nil, metrics: nil, views: viewsDict)
-//		self.keyWindow.addConstraints(constraints)
-//		
-//		[UIView.animateWithDuration(0.5, animations: { () -> Void in
-//			self.backgroundView.alpha = 0.4
-//		})]
+		behavioursToAdd = Array()
 		
-		let centerInKeyWindow = keyWindow.convertPoint(self.center, toWindow: self.keyWindow)
-		let newCenter = CGPointMake(centerInKeyWindow.x, centerInKeyWindow.y - self.radius)
-		
-//		self.keyWindow.addSubview(self.currentColourButton)
-//		self.currentColourButton.center = centerInKeyWindow
-		
-		var count = 0
-		var points = Array<CGPoint>()
-		
-		//put them on screen
-		for buttonToAdd in self.colourButtons {
-			buttonToAdd.setTranslatesAutoresizingMaskIntoConstraints(false)
-			self.keyWindow.addSubview(buttonToAdd)
-			buttonToAdd.center = centerInKeyWindow
-//			buttonToAdd.layer.anchorPoint = CGPointMake(0.5, (radius / buttonToAdd.frame.size.height))
-////			buttonToAdd.layer.anchorPoint = centerInKeyWindow
-//			
-//			buttonToAdd.backgroundColor = .redColor()
-//			
-//			let rotation = CGAffineTransformMakeRotation(self.spacingAngle * CGFloat(count))
-//			buttonToAdd.transform = rotation
-//			
-//			println("Tried: \(buttonToAdd.frame)")
-//			
-////			let scale = CGAffineTransformMakeScale(0.0, 0.0)
-////			buttonToAdd.transform = scale
-//			
-//			buttonToAdd.setTranslatesAutoresizingMaskIntoConstraints(false)
-//			
-//			buttonToAdd.configureSnapBehaviour()
-//			
-//			println("Tried 2: \(buttonToAdd.frame)")
-//			
-//			behavioursToAdd += [buttonToAdd.snapBehaviour!]
-//			
-//			buttonToAdd.layer.anchorPoint = CGPointMake(0.5, 0.5)
-//			
-//			
-//			println("Tried 3: \(buttonToAdd.frame)")
-//			count++
+		if displayed == false {
+			sender.enabled = false
 			
-			let currentAngle = self.startAngle.degreesToRadians + self.spacingAngle * CGFloat(count)
+			let centerInKeyWindow = keyWindow.convertPoint(self.center, toWindow: self.keyWindow)
 			
-			let newX = centerInKeyWindow.x + self.radius * cos(currentAngle)
-			let newY = centerInKeyWindow.y + self.radius * sin(currentAngle)
+			var count = 0
+			var points = Array<CGPoint>()
 			
-//			let snapBehaviour = UISnapBehavior(item: buttonToAdd, snapToPoint: CGPointMake(newX, newY))
-//			behavioursToAdd += [snapBehaviour]
+			//put them on screen
+			for buttonToAdd in self.colourButtons {
+				buttonToAdd.setTranslatesAutoresizingMaskIntoConstraints(false)
+				if buttonToAdd.superview == nil {
+					self.keyWindow.addSubview(buttonToAdd)
+					buttonToAdd.center = centerInKeyWindow
+				}
+				
+				let currentAngle = self.startAngle.degreesToRadians + self.spacingAngle * CGFloat(count)
+				
+				let newX = centerInKeyWindow.x + self.radius * cos(currentAngle)
+				let newY = centerInKeyWindow.y + self.radius * sin(currentAngle)
+				
+				var snapBehaviour = UISnapBehavior(item: buttonToAdd, snapToPoint: CGPointMake(newX, newY))
+				snapBehaviour.damping = 0.4 //(1.0 / CGFloat(self.colourButtons.count)) * CGFloat(count + 1)
+				
+//				var magnitude = (1.0 / CGFloat(self.colourButtons.count)) * CGFloat(self.colourButtons.count - count)
+				
+				var pushBehaviour = UIPushBehavior(items: [buttonToAdd], mode: .Instantaneous)
+				pushBehaviour.setAngle(currentAngle, magnitude: 0.5)
+				
+				behavioursToAdd += [snapBehaviour, pushBehaviour]
+				
+				
+				count++
+			}
 			
-			buttonToAdd.center = CGPointMake(newX, newY)
+			self.currentColourButton.removeFromSuperview()
+			self.keyWindow.addSubview(self.currentColourButton)
+			self.currentColourButton.center = centerInKeyWindow
 			
-			count++
-		}
-		
-		for behaviour in behavioursToAdd {
-			println(behaviour)
-			self.animator.addBehavior(behaviour)
+			var resistanceBehaviour = UIDynamicItemBehavior(items: self.colourButtons)
+			resistanceBehaviour.resistance = 8.0
+			
+			var gravityBehaviour = UIGravityBehavior(items: self.colourButtons)
+			gravityBehaviour.setAngle(self.startAngle.degreesToRadians, magnitude: 0.5)
+			
+			behavioursToAdd += [resistanceBehaviour]
+			
+			if self.animator == nil {
+				self.animator = UIDynamicAnimator(referenceView: self.keyWindow)
+			} else {
+				self.animator?.removeAllBehaviors()
+			}
+			
+			for behaviour in self.behavioursToAdd {
+				self.animator!.addBehavior(behaviour as! UIDynamicBehavior)
+			}
+			
+			displayed = true
+			sender.enabled = true
+		} else {
+			sender.enabled = false
+			
+			let centerInKeyWindow = keyWindow.convertPoint(self.center, toWindow: self.keyWindow)
+			
+			var count = 0
+			var points = Array<CGPoint>()
+			
+			//put them on screen
+			for buttonToAdd in self.colourButtons {
+				let currentAngle = self.startAngle.degreesToRadians + self.spacingAngle * CGFloat(count)
+				
+				let newX = centerInKeyWindow.x + self.radius * cos(currentAngle)
+				let newY = centerInKeyWindow.y + self.radius * sin(currentAngle)
+				
+				var snapBehaviour = UISnapBehavior(item: buttonToAdd, snapToPoint: centerInKeyWindow)
+				snapBehaviour.damping = 0.8
+
+				var resistanceBehaviour = UIDynamicItemBehavior(items: [buttonToAdd])
+				resistanceBehaviour.resistance = 10
+				
+				var magnitude = (1.0 / CGFloat(self.colourButtons.count)) * CGFloat(self.colourButtons.count - count)
+				
+				var pushBehaviour = UIPushBehavior(items: [buttonToAdd], mode: .Instantaneous)
+				pushBehaviour.setAngle(currentAngle + 180.degreesToRadians, magnitude: magnitude)
+				
+				behavioursToAdd += [snapBehaviour, pushBehaviour, resistanceBehaviour]
+
+				
+				count++
+			}
+			
+			var gravityBehaviour = UIGravityBehavior(items: self.colourButtons)
+			gravityBehaviour.setAngle(0.0, magnitude: 0.2)
+			
+//			behavioursToAdd += [gravityBehaviour]
+			
+			if self.animator == nil {
+				self.animator = UIDynamicAnimator(referenceView: self.keyWindow)
+			} else {
+				self.animator?.removeAllBehaviors()
+			}
+			
+			for behaviour in self.behavioursToAdd {
+				self.animator!.addBehavior(behaviour as! UIDynamicBehavior)
+			}
+			
+			displayed = false
+			sender.enabled = true
 		}
 	}
 }
