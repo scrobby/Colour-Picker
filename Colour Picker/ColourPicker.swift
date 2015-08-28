@@ -51,6 +51,7 @@ enum ColourPickerDirection {
 		if _backgroundView == nil {
 			_backgroundView = UIView(frame: keyWindow.bounds)
 			_backgroundView?.setTranslatesAutoresizingMaskIntoConstraints(false)
+			_backgroundView?.backgroundColor = .blackColor()
 			
 			_backgroundView?.alpha = 0.0
 		}
@@ -64,18 +65,6 @@ enum ColourPickerDirection {
 			_colourButtons = nil //makes sure that there are enough buttons
 		}
 	}
-	//	private var _colours: Array<UIColor>?
-	//	var colours: Array<UIColor> {
-	//		get {
-	//			if self._colours == nil {
-	//				self._colours = [.redColor(), .greenColor(), .blueColor(), .yellowColor(), .purpleColor()]
-	//			}
-	//			return self._colours!
-	//		}
-	//		set {
-	//			self._colours = newValue
-	//		}
-	//	}
 	
 	private var _selectedColour: UIColor? //if no selected colour is given, the picker will automatically choose the first in the array
 	var selectedColour: UIColor {
@@ -272,6 +261,8 @@ enum ColourPickerDirection {
 	}
 	
 	var displayed = false
+	var storedCenter: CGPoint?
+	var originalCenter: CGPoint?
 	
 	//MARK: - Actions
 	func didPressSelectedColourButton(sender: UIButton) {
@@ -280,28 +271,34 @@ enum ColourPickerDirection {
 		if displayed == false {
 			sender.enabled = false
 			
-			let centerInKeyWindow = keyWindow.convertPoint(self.center, toWindow: self.keyWindow)
+			self.keyWindow.addSubview(self.backgroundView)
+			
+			if storedCenter == nil {
+				originalCenter = self.currentColourButton.center
+				storedCenter = self.convertPoint(self.currentColourButton.center, toView: self.keyWindow)
+			}
 			
 			var count = 0
 			var points = Array<CGPoint>()
 			
 			//put them on screen
 			for buttonToAdd in self.colourButtons {
-				buttonToAdd.setTranslatesAutoresizingMaskIntoConstraints(false)
 				if buttonToAdd.superview == nil {
+					buttonToAdd.setTranslatesAutoresizingMaskIntoConstraints(false)
 					self.keyWindow.addSubview(buttonToAdd)
-					buttonToAdd.center = centerInKeyWindow
+					buttonToAdd.center = self.storedCenter!
+					buttonToAdd.alpha = 1.0
 				}
 				
 				let currentAngle = self.startAngle.degreesToRadians + self.spacingAngle * CGFloat(count)
 				
-				let newX = centerInKeyWindow.x + self.radius * cos(currentAngle)
-				let newY = centerInKeyWindow.y + self.radius * sin(currentAngle)
+				let newX = self.storedCenter!.x + self.radius * cos(currentAngle)
+				let newY = self.storedCenter!.y + self.radius * sin(currentAngle)
 				
 				var snapBehaviour = UISnapBehavior(item: buttonToAdd, snapToPoint: CGPointMake(newX, newY))
 				snapBehaviour.damping = 0.4 //(1.0 / CGFloat(self.colourButtons.count)) * CGFloat(count + 1)
 				
-//				var magnitude = (1.0 / CGFloat(self.colourButtons.count)) * CGFloat(self.colourButtons.count - count)
+				//				var magnitude = (1.0 / CGFloat(self.colourButtons.count)) * CGFloat(self.colourButtons.count - count)
 				
 				var pushBehaviour = UIPushBehavior(items: [buttonToAdd], mode: .Instantaneous)
 				pushBehaviour.setAngle(currentAngle, magnitude: 0.5)
@@ -312,9 +309,8 @@ enum ColourPickerDirection {
 				count++
 			}
 			
-			self.currentColourButton.removeFromSuperview()
 			self.keyWindow.addSubview(self.currentColourButton)
-			self.currentColourButton.center = centerInKeyWindow
+			self.currentColourButton.center = self.storedCenter!
 			
 			var resistanceBehaviour = UIDynamicItemBehavior(items: self.colourButtons)
 			resistanceBehaviour.resistance = 8.0
@@ -334,12 +330,14 @@ enum ColourPickerDirection {
 				self.animator!.addBehavior(behaviour as! UIDynamicBehavior)
 			}
 			
+			UIView.animateWithDuration(0.3, animations: { () -> Void in
+				self.backgroundView.alpha = 0.5
+			})
+			
 			displayed = true
 			sender.enabled = true
 		} else {
 			sender.enabled = false
-			
-			let centerInKeyWindow = keyWindow.convertPoint(self.center, toWindow: self.keyWindow)
 			
 			var count = 0
 			var points = Array<CGPoint>()
@@ -348,12 +346,12 @@ enum ColourPickerDirection {
 			for buttonToAdd in self.colourButtons {
 				let currentAngle = self.startAngle.degreesToRadians + self.spacingAngle * CGFloat(count)
 				
-				let newX = centerInKeyWindow.x + self.radius * cos(currentAngle)
-				let newY = centerInKeyWindow.y + self.radius * sin(currentAngle)
+				let newX = self.storedCenter!.x + self.radius * cos(currentAngle)
+				let newY = self.storedCenter!.y + self.radius * sin(currentAngle)
 				
-				var snapBehaviour = UISnapBehavior(item: buttonToAdd, snapToPoint: centerInKeyWindow)
+				var snapBehaviour = UISnapBehavior(item: buttonToAdd, snapToPoint: self.storedCenter!)
 				snapBehaviour.damping = 0.8
-
+				
 				var resistanceBehaviour = UIDynamicItemBehavior(items: [buttonToAdd])
 				resistanceBehaviour.resistance = 10
 				
@@ -363,7 +361,7 @@ enum ColourPickerDirection {
 				pushBehaviour.setAngle(currentAngle + 180.degreesToRadians, magnitude: magnitude)
 				
 				behavioursToAdd += [snapBehaviour, pushBehaviour, resistanceBehaviour]
-
+				
 				
 				count++
 			}
@@ -371,7 +369,7 @@ enum ColourPickerDirection {
 			var gravityBehaviour = UIGravityBehavior(items: self.colourButtons)
 			gravityBehaviour.setAngle(0.0, magnitude: 0.2)
 			
-//			behavioursToAdd += [gravityBehaviour]
+			//			behavioursToAdd += [gravityBehaviour]
 			
 			if self.animator == nil {
 				self.animator = UIDynamicAnimator(referenceView: self.keyWindow)
@@ -383,8 +381,22 @@ enum ColourPickerDirection {
 				self.animator!.addBehavior(behaviour as! UIDynamicBehavior)
 			}
 			
-			displayed = false
-			sender.enabled = true
+			UIView.animateWithDuration(0.3, animations: { () -> Void in
+				self.backgroundView.alpha = 0.0
+				for button in self.colourButtons {
+					button.alpha = 0.0
+				}
+				}, completion: { (completion: Bool) -> Void in
+					self.addSubview(self.currentColourButton)
+					self.currentColourButton.center = self.originalCenter!
+					
+					self.backgroundView.removeFromSuperview()
+					for button in self.colourButtons {
+						button.removeFromSuperview()
+					}
+					self.displayed = false
+					sender.enabled = true
+			})
 		}
 	}
 }
