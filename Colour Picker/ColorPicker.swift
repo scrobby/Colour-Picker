@@ -27,16 +27,15 @@ SOFTWARE.
 import Foundation
 import UIKit
 
-enum ColourPickerDirection {
-	case Clockwise
-	case CounterClockwise
+protocol ColorPickerDelegate {
+	func colorPickerDidSelectColor(color: UIColor)
 }
 
-@IBDesignable class ColourPicker: UIView {
+@IBDesignable class ColorPicker: UIView {
 	//MARK: Entirely calculated variables
 	private var spacingAngle: CGFloat {
-		let spacing = (self.angleOfDisplay/(self.colours.count - 1)).degreesToRadians
-		if self.directionOfDisplay == .Clockwise {
+		let spacing = (CGFloat(self.angleOfDisplay)/CGFloat(self.colors.count - 1)).degreesToRadians
+		if clockwise {
 			return spacing
 		} else {
 			return spacing * -1
@@ -59,37 +58,36 @@ enum ColourPickerDirection {
 		return _backgroundView!
 	}
 	
-	//MARK: Colours
-	var colours: Array<UIColor> {
+	//MARK: Colors
+	var colors = Array<UIColor>() {
 		didSet {
-			_colourButtons = nil //makes sure that there are enough buttons
+			_colorButtons = nil //makes sure that there are enough buttons
+			println("called")
 		}
 	}
 	
-	private var _selectedColour: UIColor? //if no selected colour is given, the picker will automatically choose the first in the array
-	var selectedColour: UIColor {
-		get {
-			if self._selectedColour == nil {
-				self.selectedColour = self.colours[0]
-			}
-			return self._selectedColour!
+	private var _currentColor: UIColor?
+	var currentColor: UIColor {
+		if _currentColor == nil {
+			_currentColor = startColor
 		}
-		set {
-			self._selectedColour = newValue
-		}
+		
+		return _currentColor!
 	}
 	
 	
 	//MARK: Angles
-	var _startAngle: Int!
+	var _startAngle: Int?
 	var startAngle: Int {
 		get {
-			var returnAngle = _startAngle
+			if _startAngle == nil {
+				_startAngle = 0
+			}
 			
-			if self.directionOfDisplay == .Clockwise {
-				return _startAngle - 90
+			if clockwise {
+				return _startAngle! - 90
 			} else {
-				return _startAngle + 270
+				return _startAngle! + 270
 			}
 		}
 		set {
@@ -134,7 +132,7 @@ enum ColourPickerDirection {
 				proposedAngle *= -1
 			}
 			
-			let requiredDistanceFor360 = (360/self.colours.count) * (self.colours.count - 1)
+			let requiredDistanceFor360 = Int((360.0/CGFloat(self.colors.count)) * CGFloat(self.colors.count - 1))
 			
 			if proposedAngle > requiredDistanceFor360 {
 				proposedAngle = requiredDistanceFor360
@@ -149,68 +147,55 @@ enum ColourPickerDirection {
 		}
 	}
 	
-	var animator: UIDynamicAnimator?
-	
 	//MARK: Buttons
 	//TODO: Make it possible to add different shapes
-	private var _colourButtons: Array<ColourPickerButton>?
-	var colourButtons: Array<ColourPickerButton> {
-		if _colourButtons == nil {
-			_colourButtons = Array<ColourPickerButton>()
+	private var _colorButtons: Array<ColorPickerButton>?
+	var colorButtons: Array<ColorPickerButton> {
+		if _colorButtons == nil {
+			_colorButtons = Array<ColorPickerButton>()
 			
-			for colour in self.colours {
-				let button = ColourPickerButton(frame: self.frame)
-				button.colour = colour
-				button.borderColor = self.borderColour
+			for color in self.colors {
+				let button = ColorPickerButton(frame: self.frame)
+				button.color = color
+				button.borderColor = self.borderColor
 				button.borderWidth = self.borderWidth
-				_colourButtons! += [button]
+				_colorButtons! += [button]
 			}
 		}
-		return _colourButtons!
+		return _colorButtons!
 	}
 	
-	private var _currentColourButton: ColourPickerButton?
-	var currentColourButton: ColourPickerButton {
-		if _currentColourButton == nil {
-			_currentColourButton = ColourPickerButton()
+	private var _currentColorButton: ColorPickerButton?
+	var currentColorButton: ColorPickerButton {
+		if _currentColorButton == nil {
+			_currentColorButton = ColorPickerButton()
 			
-			_currentColourButton!.colour = self.currentColour
-			_currentColourButton!.borderColor = self.borderColour
-			_currentColourButton!.borderWidth = self.borderWidth
+			_currentColorButton!.color = self.currentColor
+			_currentColorButton!.borderColor = self.borderColor
+			_currentColorButton!.borderWidth = self.borderWidth
 			
-			_currentColourButton!.addTarget(self, action: "didPressSelectedColourButton:", forControlEvents: .TouchUpInside)
+			_currentColorButton!.addTarget(self, action: "didPressSelectedColorButton:", forControlEvents: .TouchUpInside)
 		}
-		return _currentColourButton!
+		return _currentColorButton!
 	}
 	
 	//MARK: Other Variables
-	var directionOfDisplay: ColourPickerDirection = .CounterClockwise
+	var clockwise = false
 	var radius: CGFloat = 60.0
 	
-	@IBInspectable var startColour: UIColor = .redColor()
-	private var _currentColour: UIColor?
-	var currentColour: UIColor {
-		if _currentColour == nil {
-			_currentColour = startColour
-		}
-		
-		return _currentColour!
-	}
-	
-	@IBInspectable var borderColour: UIColor = .whiteColor()
+	@IBInspectable var borderColor: UIColor = .whiteColor()
 	@IBInspectable var borderWidth: CGFloat = 2.0
-	
-	var behavioursToAdd = Array<AnyObject>()
+	@IBInspectable var startColor: UIColor = .redColor()
 	
 	
 	//MARK: - Initialisers
 	//// All the angles in here should be done as integers, up to the value of 359°
-	convenience init(anchorPoint: CGPoint, colours: Array<UIColor>, frame: CGRect) {
-		self.init(colours: colours, startAngle: 0, angleOfDisplay: 180, frame: frame)
+	convenience init(anchorPoint: CGPoint, colors: Array<UIColor>, frame: CGRect) {
+		self.init(colors: colors, startAngle: 0, angleOfDisplay: 180, frame: frame)
 	}
 	
-	init(colours: Array<UIColor>, startAngle: Int, angleOfDisplay: Int, frame: CGRect) {
-		self.colours = colours
+	init(colors: Array<UIColor>, startAngle: Int, angleOfDisplay: Int, frame: CGRect) {
+		self.colors = colors
 		
 		super.init(frame: frame)
 		
@@ -218,8 +203,8 @@ enum ColourPickerDirection {
 		self.angleOfDisplay = angleOfDisplay
 	}
 	
-	init(colours: Array<UIColor>, startAngle: Int, endAngle: Int, frame: CGRect) {
-		self.colours = colours
+	init(colors: Array<UIColor>, startAngle: Int, endAngle: Int, frame: CGRect) {
+		self.colors = colors
 		
 		super.init(frame: frame)
 		
@@ -228,24 +213,18 @@ enum ColourPickerDirection {
 	}
 	
 	override init(frame: CGRect) {
-		self.colours = [.redColor(), .greenColor()]
-		
 		super.init(frame: frame)
-		self.startAngle = 0
 	}
 	
 	required init(coder aDecoder: NSCoder) {
-		self.colours = [.redColor(), .greenColor()]
-		
 		super.init(coder: aDecoder)
-		self.startAngle = 0
 	}
 	
 	
 	//MARK: - Drawing the view
 	override func drawRect(rect: CGRect) {
-		self.currentColourButton.frame = self.bounds
-		self.addSubview(self.currentColourButton)
+		self.currentColorButton.frame = self.bounds
+		self.addSubview(self.currentColorButton)
 	}
 	
 	override func intrinsicContentSize() -> CGSize {
@@ -254,9 +233,9 @@ enum ColourPickerDirection {
 	
 	
 	//MARK: - Setters
-	func setCurrentColour(colour: UIColor, animated: Bool) {
-		self._currentColour = colour
-		self._currentColourButton = nil
+	func setCurrentColor(color: UIColor, animated: Bool) {
+		self._currentColor = color
+		self._currentColorButton = nil
 		self.setNeedsDisplay()
 	}
 	
@@ -265,9 +244,7 @@ enum ColourPickerDirection {
 	var originalCenter: CGPoint?
 	
 	//MARK: - Actions
-	func didPressSelectedColourButton(sender: UIButton) {
-		behavioursToAdd = Array()
-		
+	func didPressSelectedColorButton(sender: UIButton) {
 		if displayed == false {
 			sender.enabled = false
 			
@@ -279,7 +256,7 @@ enum ColourPickerDirection {
 			sender.enabled = false
 			
 			self.dismiss({ () -> Void in
-				self.addSubview(self.currentColourButton)
+				self.addSubview(self.currentColorButton)
 				self.displayed = false
 				sender.enabled = true
 			})
@@ -290,14 +267,8 @@ enum ColourPickerDirection {
 		self.keyWindow.addSubview(self.backgroundView)
 		
 		if storedCenter == nil {
-			originalCenter = self.currentColourButton.center
-			storedCenter = self.convertPoint(self.currentColourButton.center, toView: self.keyWindow)
-		}
-		
-		if self.animator == nil {
-			self.animator = UIDynamicAnimator(referenceView: self.keyWindow)
-		} else {
-			self.animator?.removeAllBehaviors()
+			originalCenter = self.currentColorButton.center
+			storedCenter = self.convertPoint(self.currentColorButton.center, toView: self.keyWindow)
 		}
 		
 		var count = 0
@@ -305,7 +276,7 @@ enum ColourPickerDirection {
 		var delayInterval = 0.05
 		
 		//put them on screen
-		for buttonToAdd in self.colourButtons {
+		for buttonToAdd in self.colorButtons {
 			if buttonToAdd.superview == nil {
 				buttonToAdd.setTranslatesAutoresizingMaskIntoConstraints(false)
 				self.keyWindow.addSubview(buttonToAdd)
@@ -329,10 +300,10 @@ enum ColourPickerDirection {
 			count++
 		}
 		
-		totalTime = Double(self.colourButtons.count - 1) * delayInterval + 0.3
+		totalTime = Double(self.colorButtons.count - 1) * delayInterval + 0.3
 		
-		self.keyWindow.addSubview(self.currentColourButton)
-		self.currentColourButton.center = self.storedCenter!
+		self.keyWindow.addSubview(self.currentColorButton)
+		self.currentColorButton.center = self.storedCenter!
 		
 		UIView.animateWithDuration(totalTime, animations: { () -> Void in
 			self.backgroundView.alpha = 0.5
@@ -346,14 +317,14 @@ enum ColourPickerDirection {
 		var totalTime = 0.0
 		var delayInterval = 0.05
 		
-		for buttonToAdd in self.colourButtons {
+		for buttonToAdd in self.colorButtons {
 			let currentAngle = self.startAngle.degreesToRadians + self.spacingAngle * CGFloat(count)
 			
 			let newX = self.storedCenter!.x + (self.radius + 20) * cos(currentAngle)
 			let newY = self.storedCenter!.y + (self.radius + 20) * sin(currentAngle)
 			let newPoint = CGPointMake(newX, newY)
 			
-			let delayTime = Double(self.colourButtons.count - count) * delayInterval/1.5
+			let delayTime = Double(self.colorButtons.count - count) * delayInterval/1.5
 			
 			UIView.animateWithDuration(0.07, delay: delayTime - 0.07, options: .CurveLinear, animations: { () -> Void in
 				buttonToAdd.center = newPoint
@@ -368,12 +339,12 @@ enum ColourPickerDirection {
 			count++
 		}
 		
-		totalTime = Double(self.colourButtons.count - 1) * delayInterval/1.5 + 0.2
+		totalTime = Double(self.colorButtons.count - 1) * delayInterval/1.5 + 0.2
 		
 		UIView.animateWithDuration(totalTime, animations: { () -> Void in
 			self.backgroundView.alpha = 0.0
 			}, completion: { (done: Bool) -> Void in
-				self.currentColourButton.frame = self.bounds
+				self.currentColorButton.frame = self.bounds
 				self.backgroundView.removeFromSuperview()
 				completion()
 		})
@@ -381,12 +352,14 @@ enum ColourPickerDirection {
 }
 
 
-enum ColourPickerButtonShape {
+//MARK: - Color Picker Button
+
+enum ColorPickerButtonShape {
 	case Circle
 }
 
-@IBDesignable class ColourPickerButton: UIButton {
-	var colour: UIColor = .redColor()
+@IBDesignable class ColorPickerButton: UIButton {
+	var color: UIColor = .redColor()
 	var borderColor: UIColor = .whiteColor()
 	var borderWidth: CGFloat = 1.0
 	
@@ -411,12 +384,10 @@ enum ColourPickerButtonShape {
 		let newRect = rect.rectThatFitsInsideSelfWithStrokeWidth(borderWidth)
 		
 		self.borderColor.setStroke()
-		self.colour.setFill()
+		self.color.setFill()
 		CGContextSetLineWidth(context, borderWidth)
 		CGContextFillEllipseInRect(context, newRect)
 		CGContextStrokeEllipseInRect(context, newRect)
-		
-//		self.layer.shouldRasterize = true
 	}
 	
 	func configureSnapBehaviour() {
@@ -429,9 +400,18 @@ enum ColourPickerButtonShape {
 	}
 }
 
+
+//MARK: - Extensions
+
 extension Int {
 	var degreesToRadians : CGFloat {
 		return CGFloat(self) * CGFloat(M_PI) / 180.0
+	}
+}
+
+extension CGFloat {
+	var degreesToRadians : CGFloat {
+		return self * CGFloat(M_PI) / 180.0
 	}
 }
 
@@ -469,10 +449,5 @@ extension UIColor {
 	
 	var blueValue: CGFloat {
 		return self.RGBValues.blue
-	}
-	
-	func greyscaleVersion() -> UIColor {
-		let newValue = (redValue + greenValue + blueValue) / 3
-		return UIColor(red: newValue, green: newValue, blue: newValue, alpha: 1.0)
 	}
 }

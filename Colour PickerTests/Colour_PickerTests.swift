@@ -1,6 +1,6 @@
 //
-//  Colour_PickerTests.swift
-//  Colour PickerTests
+//  Color_PickerTests.swift
+//  Color PickerTests
 //
 //  Created by Carl Goldsmith on 27/08/2015.
 //  Copyright (c) 2015 Carl Goldsmith. All rights reserved.
@@ -9,7 +9,7 @@
 import UIKit
 import XCTest
 
-class Colour_PickerTests: XCTestCase {
+class Color_PickerTests: XCTestCase {
     
     override func setUp() {
         super.setUp()

@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  Colour Picker
+//  Color Picker
 //
 //  Created by Carl Goldsmith on 27/08/2015.
 //  Copyright (c) 2015 Carl Goldsmith. All rights reserved.

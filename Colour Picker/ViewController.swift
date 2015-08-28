@@ -1,6 +1,6 @@
 //
 //  ViewController.swift
-//  Colour Picker
+//  Color Picker
 //
 //  Created by Carl Goldsmith on 27/08/2015.
 //  Copyright (c) 2015 Carl Goldsmith. All rights reserved.
@@ -9,25 +9,68 @@
 import UIKit
 
 class ViewController: UIViewController {
-	@IBOutlet weak var colourPicker: ColourPicker!
+	@IBOutlet weak var colorPicker: ColorPicker!
+	
+	@IBOutlet weak var colorsLabel: UILabel!
+	@IBOutlet weak var startAngleLabel: UILabel!
+	@IBOutlet weak var totalAngleLabel: UILabel!
+	
+	
+	let colors: Array<UIColor> = [.redColor(), .greenColor(), .blueColor(), .purpleColor(), .yellowColor(), .orangeColor(), .cyanColor(), .magentaColor(), .grayColor(), .brownColor(), .blackColor(), .lightGrayColor()]
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		self.colourPicker.setCurrentColour(.redColor(), animated: false)
-		self.colourPicker.colours = [.redColor(), .greenColor(), .blueColor(), .purpleColor(), .yellowColor(), .orangeColor(), .cyanColor(), .magentaColor(), .grayColor(), .blackColor()]
-		self.colourPicker.startAngle = 0
-		self.colourPicker.angleOfDisplay = 360
-
+		
+		var counter = 0
+		let countTo = 6
+		
+		while counter < countTo {
+			self.colorPicker.colors.append(self.colors[counter])
+			counter++
+		}
 	}
 
 	override func didReceiveMemoryWarning() {
 		super.didReceiveMemoryWarning()
 		// Dispose of any resources that can be recreated.
 	}
-
-	@IBAction func buttonPressed(sender: AnyObject) {
+	
+	@IBAction func noColorsChanged(sender: UISlider) {
+		var counter = 0
+		let countTo = Int(sender.value)
+		self.colorsLabel.text = "\(countTo)"
 		
+		var newColors = Array<UIColor>()
+		
+		while counter < countTo {
+			newColors.append(self.colors[counter])
+			counter++
+		}
+		
+		self.colorPicker.colors = newColors
 	}
 	
+	@IBAction func startAngleChanged(sender: UISlider) {
+		let value = Int(sender.value).roundToFive()
+		self.colorPicker.startAngle = value
+		startAngleLabel.text = "\(value)"
+	}
+	
+	@IBAction func totalAngleChanged(sender: UISlider) {
+		let value = Int(sender.value).roundToFive()
+		self.colorPicker.angleOfDisplay = value
+		totalAngleLabel.text = "\(value)"
+	}
+	
+	@IBAction func clockwiseButtonTapped(sender: UISwitch) {
+		self.colorPicker.clockwise = sender.on
+		
+	}
+}
+
+extension Int {
+	func roundToFive() -> Int {
+		return 5 * Int(round(Double(self) / 5.0))
+	}
 }
 
