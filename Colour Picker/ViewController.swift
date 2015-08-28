@@ -13,7 +13,11 @@ class ViewController: UIViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		// Do any additional setup after loading the view, typically from a nib.
+		self.colourPicker.setCurrentColour(.redColor(), animated: false)
+		self.colourPicker.colours = [.redColor(), .greenColor(), .blueColor(), .purpleColor(), .yellowColor(), .orangeColor(), .cyanColor(), .magentaColor(), .grayColor(), .blackColor()]
+		self.colourPicker.startAngle = 0
+		self.colourPicker.angleOfDisplay = 360
+
 	}
 
 	override func didReceiveMemoryWarning() {
@@ -22,8 +26,7 @@ class ViewController: UIViewController {
 	}
 
 	@IBAction func buttonPressed(sender: AnyObject) {
-		self.colourPicker.setCurrentColour(.greenColor(), animated: false)
-		self.colourPicker.colours = [.redColor(), .greenColor(), .blueColor(), .yellowColor(), .purpleColor()]
+		
 	}
 	
 }
