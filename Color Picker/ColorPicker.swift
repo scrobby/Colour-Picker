@@ -28,7 +28,8 @@ import Foundation
 import UIKit
 
 protocol ColorPickerDelegate {
-	func colorPickerDidSelectColor(color: UIColor)
+	func colorPickerDidSelectColor(picker: ColorPicker, color: UIColor)
+	func colorPickerDidCancel(picker: ColorPicker)
 }
 
 @IBDesignable class ColorPicker: UIView {
@@ -66,7 +67,11 @@ protocol ColorPickerDelegate {
 		}
 	}
 	
-	private var _currentColor: UIColor?
+	private var _currentColor: UIColor? {
+		didSet {
+			self.currentColorButton.color = currentColor
+		}
+	}
 	var currentColor: UIColor {
 		if _currentColor == nil {
 			_currentColor = startColor
@@ -159,6 +164,9 @@ protocol ColorPickerDelegate {
 				button.color = color
 				button.borderColor = self.borderColor
 				button.borderWidth = self.borderWidth
+				
+				button.addTarget(self, action: "didPressColorButton:", forControlEvents: .TouchUpInside)
+				
 				_colorButtons! += [button]
 			}
 		}
@@ -182,6 +190,7 @@ protocol ColorPickerDelegate {
 	//MARK: Other Variables
 	var clockwise = false
 	var radius: CGFloat = 60.0
+	var delegate: ColorPickerDelegate?
 	
 	@IBInspectable var borderColor: UIColor = .whiteColor()
 	@IBInspectable var borderWidth: CGFloat = 2.0
@@ -190,8 +199,9 @@ protocol ColorPickerDelegate {
 	
 	//MARK: - Initialisers
 	//// All the angles in here should be done as integers, up to the value of 359°
-	convenience init(anchorPoint: CGPoint, colors: Array<UIColor>, frame: CGRect) {
+	convenience init(anchorPoint: CGPoint, colors: Array<UIColor>, frame: CGRect, delegate: ColorPickerDelegate?) {
 		self.init(colors: colors, startAngle: 0, angleOfDisplay: 180, frame: frame)
+		self.delegate = delegate
 	}
 	
 	init(colors: Array<UIColor>, startAngle: Int, angleOfDisplay: Int, frame: CGRect) {
@@ -233,18 +243,17 @@ protocol ColorPickerDelegate {
 	
 	
 	//MARK: - Setters
-	func setCurrentColor(color: UIColor, animated: Bool) {
+	func setCurrentColor(color: UIColor) {
 		self._currentColor = color
-		self._currentColorButton = nil
-		self.setNeedsDisplay()
 	}
 	
 	var displayed = false
 	var storedCenter: CGPoint?
 	var originalCenter: CGPoint?
 	
+	
 	//MARK: - Actions
-	func didPressSelectedColorButton(sender: UIButton) {
+	func didPressSelectedColorButton(sender: ColorPickerButton) {
 		if displayed == false {
 			sender.enabled = false
 			
@@ -255,14 +264,23 @@ protocol ColorPickerDelegate {
 		} else {
 			sender.enabled = false
 			
-			self.dismiss({ () -> Void in
-				self.addSubview(self.currentColorButton)
-				self.displayed = false
-				sender.enabled = true
+			self.delegate?.colorPickerDidCancel(self)
+			
+			self.dismiss(nil, completion: { () -> Void in
+				
 			})
 		}
 	}
 	
+	func didPressColorButton(sender: ColorPickerButton) {
+		self.delegate?.colorPickerDidSelectColor(self, color: sender.color)
+		self.dismiss(sender, completion: { () -> Void in
+			self.setCurrentColor(sender.color)
+		})
+	}
+	
+	
+	//MARK: - Showing/Dismissing
 	func show(completion: () -> Void) {
 		self.keyWindow.addSubview(self.backgroundView)
 		
@@ -312,10 +330,10 @@ protocol ColorPickerDelegate {
 		})
 	}
 	
-	func dismiss(completion: () -> Void) {
+	func dismiss(selectedColorButton: ColorPickerButton?, completion: () -> Void) {
 		var count = 0
 		var totalTime = 0.0
-		var delayInterval = 0.05
+		var delayInterval = 0.03
 		
 		for buttonToAdd in self.colorButtons {
 			let currentAngle = self.startAngle.degreesToRadians + self.spacingAngle * CGFloat(count)
@@ -324,7 +342,12 @@ protocol ColorPickerDelegate {
 			let newY = self.storedCenter!.y + (self.radius + 20) * sin(currentAngle)
 			let newPoint = CGPointMake(newX, newY)
 			
-			let delayTime = Double(self.colorButtons.count - count) * delayInterval/1.5
+			var delayTime = Double(self.colorButtons.count - count) * delayInterval
+			
+			if selectedColorButton == buttonToAdd {
+				delayTime = Double(self.colorButtons.count * 2) * delayInterval
+				self.keyWindow.insertSubview(buttonToAdd, aboveSubview: self.currentColorButton)
+			}
 			
 			UIView.animateWithDuration(0.07, delay: delayTime - 0.07, options: .CurveLinear, animations: { () -> Void in
 				buttonToAdd.center = newPoint
@@ -339,13 +362,23 @@ protocol ColorPickerDelegate {
 			count++
 		}
 		
-		totalTime = Double(self.colorButtons.count - 1) * delayInterval/1.5 + 0.2
+		totalTime = Double(self.colorButtons.count) * delayInterval + 0.2
+		
+		if selectedColorButton != nil {
+			totalTime = Double(self.colorButtons.count * 2) * delayInterval + 0.2
+		}
 		
 		UIView.animateWithDuration(totalTime, animations: { () -> Void in
 			self.backgroundView.alpha = 0.0
 			}, completion: { (done: Bool) -> Void in
 				self.currentColorButton.frame = self.bounds
 				self.backgroundView.removeFromSuperview()
+				
+				self.addSubview(self.currentColorButton)
+				
+				self.displayed = false
+				self.currentColorButton.enabled = true
+				
 				completion()
 		})
 	}
@@ -359,7 +392,11 @@ enum ColorPickerButtonShape {
 }
 
 @IBDesignable class ColorPickerButton: UIButton {
-	var color: UIColor = .redColor()
+	var color: UIColor = .redColor() {
+		didSet {
+			self.setNeedsDisplay()
+		}
+	}
 	var borderColor: UIColor = .whiteColor()
 	var borderWidth: CGFloat = 1.0
 	

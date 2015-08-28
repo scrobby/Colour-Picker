@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, ColorPickerDelegate {
 	@IBOutlet weak var colorPicker: ColorPicker!
 	
 	@IBOutlet weak var colorsLabel: UILabel!
@@ -23,6 +23,8 @@ class ViewController: UIViewController {
 		
 		var counter = 0
 		let countTo = 6
+		
+		self.colorPicker.delegate = self
 		
 		while counter < countTo {
 			self.colorPicker.colors.append(self.colors[counter])
@@ -64,6 +66,15 @@ class ViewController: UIViewController {
 	
 	@IBAction func clockwiseButtonTapped(sender: UISwitch) {
 		self.colorPicker.clockwise = sender.on
+		
+	}
+	
+	//MARK: - ColorPickerDelegate Methods
+	func colorPickerDidSelectColor(picker: ColorPicker, color: UIColor) {
+		self.view.backgroundColor = color
+	}
+	
+	func colorPickerDidCancel(picker: ColorPicker) {
 		
 	}
 }
