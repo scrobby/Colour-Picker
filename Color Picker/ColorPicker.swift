@@ -290,8 +290,12 @@ protocol ColorPickerDelegate {
 		}
 		
 		var count = 0
-		var totalTime = 0.0
-		var delayInterval = 0.05
+		
+		let totalDelay = 0.3
+		let intervalDelay = (totalDelay / Double(self.colorButtons.count))
+		let animationTime = 0.3
+		
+		self.currentColorButton.shouldShowCloseButton = true
 		
 		//put them on screen
 		for buttonToAdd in self.colorButtons {
@@ -308,9 +312,9 @@ protocol ColorPickerDelegate {
 			let newX = self.storedCenter!.x + self.radius * cos(currentAngle)
 			let newY = self.storedCenter!.y + self.radius * sin(currentAngle)
 			
-			let delayTime = Double(count) * delayInterval
+			let delayTime = Double(count) * intervalDelay
 			
-			UIView.animateWithDuration(0.3, delay:delayTime , usingSpringWithDamping: 0.6, initialSpringVelocity: 6.0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
+			UIView.animateWithDuration(animationTime, delay:delayTime , usingSpringWithDamping: 0.6, initialSpringVelocity: 6.0, options: UIViewAnimationOptions.CurveEaseOut, animations: { () -> Void in
 				buttonToAdd.center = CGPointMake(newX, newY)
 				}, completion: { (success: Bool) -> Void in
 			})
@@ -318,7 +322,7 @@ protocol ColorPickerDelegate {
 			count++
 		}
 		
-		totalTime = Double(self.colorButtons.count - 1) * delayInterval + 0.3
+		let totalTime = totalDelay + animationTime
 		
 		self.keyWindow.addSubview(self.currentColorButton)
 		self.currentColorButton.center = self.storedCenter!
@@ -332,8 +336,11 @@ protocol ColorPickerDelegate {
 	
 	func dismiss(selectedColorButton: ColorPickerButton?, completion: () -> Void) {
 		var count = 0
-		var totalTime = 0.0
-		var delayInterval = 0.03
+		
+		let totalDelay = 0.2
+		let intervalDelay = (totalDelay / Double(self.colorButtons.count))
+		let animationTime = 0.2
+		let bounceTime = 0.07
 		
 		for buttonToAdd in self.colorButtons {
 			let currentAngle = self.startAngle.degreesToRadians + self.spacingAngle * CGFloat(count)
@@ -342,30 +349,30 @@ protocol ColorPickerDelegate {
 			let newY = self.storedCenter!.y + (self.radius + 20) * sin(currentAngle)
 			let newPoint = CGPointMake(newX, newY)
 			
-			var delayTime = Double(self.colorButtons.count - count) * delayInterval
+			var delayTime = Double(self.colorButtons.count - count) * intervalDelay
 			
 			if selectedColorButton == buttonToAdd {
-				delayTime = Double(self.colorButtons.count * 2) * delayInterval
+				delayTime = Double(self.colorButtons.count + 2) * intervalDelay
 				self.keyWindow.insertSubview(buttonToAdd, aboveSubview: self.currentColorButton)
 			}
 			
-			UIView.animateWithDuration(0.07, delay: delayTime - 0.07, options: .CurveLinear, animations: { () -> Void in
+			UIView.animateWithDuration(bounceTime, delay: delayTime, options: .CurveLinear, animations: { () -> Void in
 				buttonToAdd.center = newPoint
-				}, completion: nil)
-			
-			UIView.animateWithDuration(0.2, delay: delayTime, options: .CurveEaseOut, animations: { () -> Void in
-				buttonToAdd.center = self.storedCenter!
 				}, completion: { (success: Bool) -> Void in
-					buttonToAdd.removeFromSuperview()
+					UIView.animateWithDuration(animationTime, delay: 0.0, options: .CurveEaseOut, animations: { () -> Void in
+						buttonToAdd.center = self.storedCenter!
+						}, completion: { (success: Bool) -> Void in
+							buttonToAdd.removeFromSuperview()
+					})
 			})
 			
 			count++
 		}
 		
-		totalTime = Double(self.colorButtons.count) * delayInterval + 0.2
+		var totalTime = totalDelay + animationTime + bounceTime
 		
 		if selectedColorButton != nil {
-			totalTime = Double(self.colorButtons.count * 2) * delayInterval + 0.2
+			totalTime = Double(self.colorButtons.count + 2) * intervalDelay + animationTime + bounceTime
 		}
 		
 		UIView.animateWithDuration(totalTime, animations: { () -> Void in
@@ -374,6 +381,7 @@ protocol ColorPickerDelegate {
 				self.currentColorButton.frame = self.bounds
 				self.backgroundView.removeFromSuperview()
 				
+				self.currentColorButton.shouldShowCloseButton = false
 				self.addSubview(self.currentColorButton)
 				
 				self.displayed = false
@@ -391,6 +399,8 @@ enum ColorPickerButtonShape {
 	case Circle
 }
 
+let π = CGFloat(M_PI)
+
 @IBDesignable class ColorPickerButton: UIButton {
 	var color: UIColor = .redColor() {
 		didSet {
@@ -399,6 +409,12 @@ enum ColorPickerButtonShape {
 	}
 	var borderColor: UIColor = .whiteColor()
 	var borderWidth: CGFloat = 1.0
+	
+	var shouldShowCloseButton = false {
+		didSet {
+			self.setNeedsDisplay()
+		}
+	}
 	
 	var snapBehaviour: UISnapBehavior?
 	
@@ -422,9 +438,33 @@ enum ColorPickerButtonShape {
 		
 		self.borderColor.setStroke()
 		self.color.setFill()
-		CGContextSetLineWidth(context, borderWidth)
-		CGContextFillEllipseInRect(context, newRect)
-		CGContextStrokeEllipseInRect(context, newRect)
+		
+		var path = UIBezierPath(ovalInRect: newRect)
+		path.lineWidth = self.borderWidth
+		
+		path.stroke()
+		path.fill()
+		
+		if shouldShowCloseButton {
+		CGContextSaveGState(context)
+		
+		CGContextTranslateCTM(context, rect.width/2, rect.height/2)
+		CGContextRotateCTM(context, π/4)
+		CGContextTranslateCTM(context, -rect.width/2, -rect.height/2)
+		
+			path = UIBezierPath()
+			path.moveToPoint(CGPoint(x: borderWidth * 2, y: bounds.height/2))
+			path.addLineToPoint(CGPoint(x: bounds.width - borderWidth * 2, y: bounds.height/2))
+			
+			path.moveToPoint(CGPoint(x: bounds.width/2, y: borderWidth * 2))
+			path.addLineToPoint(CGPoint(x: bounds.width/2, y: bounds.height - borderWidth * 2))
+			
+			path.lineWidth = borderWidth/2
+			
+			path.stroke()
+		
+			CGContextRestoreGState(context)
+		}
 	}
 	
 	func configureSnapBehaviour() {
@@ -440,15 +480,15 @@ enum ColorPickerButtonShape {
 
 //MARK: - Extensions
 
-extension Int {
-	var degreesToRadians : CGFloat {
-		return CGFloat(self) * CGFloat(M_PI) / 180.0
-	}
-}
-
 extension CGFloat {
 	var degreesToRadians : CGFloat {
 		return self * CGFloat(M_PI) / 180.0
+	}
+}
+
+extension Int {
+	var degreesToRadians : CGFloat {
+		return CGFloat(self) * CGFloat(M_PI) / 180.0
 	}
 }
 
