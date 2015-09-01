@@ -398,6 +398,7 @@ protocol ColorPickerDelegate {
 				
 				self.currentColorButton.frame = self.bounds
 				self.backgroundView.removeFromSuperview()
+				self._backgroundView = nil
 				
 				self.addSubview(self.currentColorButton)
 				
@@ -531,6 +532,7 @@ let π = CGFloat(M_PI)
 			scaleAnimation.values = [1.0, 0.0]
 			scaleAnimation.keyTimes = [0.0, 1.0]
 			scaleAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+			scaleAnimation.fillMode = kCAFillModeForwards
 			scaleAnimation.removedOnCompletion = false
 			
 			let alphaAnimation = CAKeyframeAnimation(keyPath: "opacity")
@@ -538,6 +540,7 @@ let π = CGFloat(M_PI)
 			alphaAnimation.values = [1.0, 0.0]
 			alphaAnimation.keyTimes = [0.0, 1.0]
 			alphaAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+			alphaAnimation.fillMode = kCAFillModeForwards
 			alphaAnimation.removedOnCompletion = false
 			
 			scaleAnimation.delegate = self
@@ -568,11 +571,12 @@ let π = CGFloat(M_PI)
 	}
 	
 	override func animationDidStop(anim: CAAnimation!, finished flag: Bool) {
-		if let animation = anim as? CAKeyframeAnimation {
+			println("About to remove")
 			if !isShowing {
+				println("Removing")
 				self.crossView.removeFromSuperview()
+				self._crossView = nil
 			}
-		}
 	}
 	
 	func configureSnapBehaviour() {
