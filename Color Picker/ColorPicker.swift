@@ -54,6 +54,9 @@ protocol ColorPickerDelegate {
 			_backgroundView?.backgroundColor = .blackColor()
 			
 			_backgroundView?.alpha = 0.0
+			
+			let tapGestureRecogniser = UITapGestureRecognizer(target: self, action: "backgroundTapped")
+			_backgroundView?.addGestureRecognizer(tapGestureRecogniser)
 		}
 		
 		return _backgroundView!
@@ -62,8 +65,7 @@ protocol ColorPickerDelegate {
 	//MARK: Colors
 	var colors = Array<UIColor>() {
 		didSet {
-			_colorButtons = nil //makes sure that there are enough buttons
-			println("called")
+			_colorButtons = nil //ensures that the buttons are created again after a colour is added/removed
 		}
 	}
 	
@@ -255,15 +257,10 @@ protocol ColorPickerDelegate {
 	//MARK: - Actions
 	func didPressSelectedColorButton(sender: ColorPickerButton) {
 		if displayed == false {
-			sender.enabled = false
-			
 			self.show({ () -> Void in
 				self.displayed = true
-				sender.enabled = true
 			})
 		} else {
-			sender.enabled = false
-			
 			self.delegate?.colorPickerDidCancel(self)
 			
 			self.dismiss(nil, completion: { () -> Void in
@@ -279,9 +276,18 @@ protocol ColorPickerDelegate {
 		})
 	}
 	
+	func backgroundTapped() {
+		self.delegate?.colorPickerDidCancel(self)
+		self.dismiss(nil, completion: { () -> Void in
+			
+		})
+	}
+	
 	
 	//MARK: - Showing/Dismissing
 	func show(completion: () -> Void) {
+		self.currentColorButton.enabled = false
+		self.backgroundView.userInteractionEnabled = false
 		self.keyWindow.addSubview(self.backgroundView)
 		
 		if storedCenter == nil {
@@ -294,8 +300,6 @@ protocol ColorPickerDelegate {
 		let totalDelay = 0.3
 		let intervalDelay = (totalDelay / Double(self.colorButtons.count))
 		let animationTime = 0.3
-		
-		self.currentColorButton.shouldShowCloseButton = true
 		
 		//put them on screen
 		for buttonToAdd in self.colorButtons {
@@ -327,14 +331,21 @@ protocol ColorPickerDelegate {
 		self.keyWindow.addSubview(self.currentColorButton)
 		self.currentColorButton.center = self.storedCenter!
 		
+		self.currentColorButton.showCloseButton((time: totalTime - intervalDelay, totalAngle: self.angleOfDisplay, self.clockwise))
+		
 		UIView.animateWithDuration(totalTime, animations: { () -> Void in
 			self.backgroundView.alpha = 0.5
 			}, completion: { (success: Bool) -> Void in
 				completion()
+				self.currentColorButton.enabled = true
+				self.backgroundView.userInteractionEnabled = true
 		})
 	}
 	
 	func dismiss(selectedColorButton: ColorPickerButton?, completion: () -> Void) {
+		self.currentColorButton.enabled = false
+		self.backgroundView.userInteractionEnabled = false
+		
 		var count = 0
 		
 		let totalDelay = 0.2
@@ -358,6 +369,7 @@ protocol ColorPickerDelegate {
 			
 			UIView.animateWithDuration(bounceTime, delay: delayTime, options: .CurveLinear, animations: { () -> Void in
 				buttonToAdd.center = newPoint
+				
 				}, completion: { (success: Bool) -> Void in
 					UIView.animateWithDuration(animationTime, delay: 0.0, options: .CurveEaseOut, animations: { () -> Void in
 						buttonToAdd.center = self.storedCenter!
@@ -372,16 +384,21 @@ protocol ColorPickerDelegate {
 		var totalTime = totalDelay + animationTime + bounceTime
 		
 		if selectedColorButton != nil {
-			totalTime = Double(self.colorButtons.count + 2) * intervalDelay + animationTime + bounceTime
+			totalTime = Double(self.colorButtons.count + 2) * intervalDelay + animationTime
+		} else {
+			self.currentColorButton.hideCloseButton((time: totalTime - bounceTime, totalAngle: self.angleOfDisplay, clockwise: self.clockwise))
 		}
 		
-		UIView.animateWithDuration(totalTime, animations: { () -> Void in
+		UIView.animateWithDuration(totalTime + 0.01, animations: { () -> Void in
 			self.backgroundView.alpha = 0.0
 			}, completion: { (done: Bool) -> Void in
+				if selectedColorButton != nil {
+					self.currentColorButton.hideCloseButton(nil)
+				}
+				
 				self.currentColorButton.frame = self.bounds
 				self.backgroundView.removeFromSuperview()
 				
-				self.currentColorButton.shouldShowCloseButton = false
 				self.addSubview(self.currentColorButton)
 				
 				self.displayed = false
@@ -407,13 +424,33 @@ let π = CGFloat(M_PI)
 			self.setNeedsDisplay()
 		}
 	}
-	var borderColor: UIColor = .whiteColor()
-	var borderWidth: CGFloat = 1.0
-	
-	var shouldShowCloseButton = false {
+	var borderColor: UIColor = .whiteColor() {
 		didSet {
-			self.setNeedsDisplay()
+			if self._crossView != nil {
+				self.crossView.color = borderColor
+			}
 		}
+	}
+	
+	var borderWidth: CGFloat = 1.0 {
+		didSet {
+			if self._crossView != nil {
+				self.crossView.width = borderWidth
+			}
+		}
+	}
+	
+	private var _crossView: ColorPickerCrossView?
+	var crossView: ColorPickerCrossView {
+		if _crossView == nil {
+			_crossView = ColorPickerCrossView(frame: self.bounds)
+			_crossView?.width = self.borderWidth + 1
+			_crossView?.color = self.borderColor
+			_crossView?.backgroundColor = .clearColor()
+			_crossView?.alpha = 0.0
+		}
+		
+		return _crossView!
 	}
 	
 	var snapBehaviour: UISnapBehavior?
@@ -432,38 +469,109 @@ let π = CGFloat(M_PI)
 		}
 	}
 	
-	override func drawRect(rect: CGRect) {
-		let context = UIGraphicsGetCurrentContext()
-		let newRect = rect.rectThatFitsInsideSelfWithStrokeWidth(borderWidth)
+	var isShowing = false
+	
+	func showCloseButton(animations: (time: Double, totalAngle: Int, clockwise: Bool)?) {
+		isShowing = true
 		
-		self.borderColor.setStroke()
-		self.color.setFill()
+		self.layer.addSublayer(self.crossView.layer)
+		self.crossView.alpha = 1.0
+		
+		if animations != nil {
+			var animationTime = animations!.time/2
+			
+			var startValue: CGFloat {
+				if animations!.clockwise {
+					return 2*π - animations!.totalAngle.degreesToRadians
+				} else {
+					return 2*π + animations!.totalAngle.degreesToRadians
+				}
+			}
+			
+			let rotationAnimation = CAKeyframeAnimation(keyPath: "transform.rotation.z")
+			rotationAnimation.duration = animationTime
+			rotationAnimation.values = [startValue, 2*π]
+			rotationAnimation.keyTimes = [0.0, 1.0]
+			rotationAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseOut)
+			
+			let scaleAnimation = CAKeyframeAnimation(keyPath: "transform.scale")
+			scaleAnimation.duration = animationTime
+			scaleAnimation.values = [0.0, 1.0]
+			scaleAnimation.keyTimes = [0.0, 1.0]
+			scaleAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseOut)
+			
+			self.crossView.layer.addAnimation(scaleAnimation, forKey: nil)
+			self.crossView.layer.addAnimation(rotationAnimation, forKey: nil)
+		}
+	}
+	
+	func hideCloseButton(animations: (time: Double, totalAngle: Int, clockwise: Bool)?) {
+		isShowing = false
+		
+		if animations != nil {
+			var animationTime = animations!.time * 2
+			
+			var endValue: CGFloat {
+				if animations!.clockwise {
+					return 2*π - animations!.totalAngle.degreesToRadians
+				} else {
+					return 2*π + animations!.totalAngle.degreesToRadians
+				}
+			}
+			
+			let rotationAnimation = CAKeyframeAnimation(keyPath: "transform.rotation.z")
+			rotationAnimation.duration = animationTime
+			rotationAnimation.values = [2*π, endValue]
+			rotationAnimation.keyTimes = [0.0, 1.0]
+			rotationAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+			rotationAnimation.removedOnCompletion = false
+			
+			let scaleAnimation = CAKeyframeAnimation(keyPath: "transform.scale")
+			scaleAnimation.duration = animationTime
+			scaleAnimation.values = [1.0, 0.0]
+			scaleAnimation.keyTimes = [0.0, 1.0]
+			scaleAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+			scaleAnimation.removedOnCompletion = false
+			
+			let alphaAnimation = CAKeyframeAnimation(keyPath: "opacity")
+			alphaAnimation.duration = animationTime
+			alphaAnimation.values = [1.0, 0.0]
+			alphaAnimation.keyTimes = [0.0, 1.0]
+			alphaAnimation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+			alphaAnimation.removedOnCompletion = false
+			
+			scaleAnimation.delegate = self
+			
+			self.crossView.layer.addAnimation(scaleAnimation, forKey: nil)
+			self.crossView.layer.addAnimation(rotationAnimation, forKey: nil)
+			self.crossView.layer.addAnimation(alphaAnimation, forKey: nil)
+		} else {
+			self.crossView.removeFromSuperview()
+			self._crossView = nil
+		}
+	}
+	
+	override func drawRect(rect: CGRect) {
+		let ctx = UIGraphicsGetCurrentContext()
+		let newRect = self.bounds.rectThatFitsInsideSelfWithStrokeWidth(borderWidth)
 		
 		var path = UIBezierPath(ovalInRect: newRect)
-		path.lineWidth = self.borderWidth
+		CGContextBeginPath(ctx)
+		CGContextAddPath(ctx, path.CGPath)
 		
-		path.stroke()
-		path.fill()
+		CGContextSetFillColorWithColor(ctx, self.color.CGColor)
 		
-		if shouldShowCloseButton {
-		CGContextSaveGState(context)
+		CGContextSetStrokeColorWithColor(ctx, self.borderColor.CGColor)
+		CGContextSetLineWidth(ctx, self.borderWidth)
 		
-		CGContextTranslateCTM(context, rect.width/2, rect.height/2)
-		CGContextRotateCTM(context, π/4)
-		CGContextTranslateCTM(context, -rect.width/2, -rect.height/2)
-		
-			path = UIBezierPath()
-			path.moveToPoint(CGPoint(x: borderWidth * 2, y: bounds.height/2))
-			path.addLineToPoint(CGPoint(x: bounds.width - borderWidth * 2, y: bounds.height/2))
-			
-			path.moveToPoint(CGPoint(x: bounds.width/2, y: borderWidth * 2))
-			path.addLineToPoint(CGPoint(x: bounds.width/2, y: bounds.height - borderWidth * 2))
-			
-			path.lineWidth = borderWidth/2
-			
-			path.stroke()
-		
-			CGContextRestoreGState(context)
+		CGContextDrawPath(ctx, kCGPathFillStroke)
+	}
+	
+	override func animationDidStop(anim: CAAnimation!, finished flag: Bool) {
+		if let animation = anim as? CAKeyframeAnimation {
+			if !isShowing {
+				self.crossView.removeFromSuperview()
+			}
 		}
 	}
 	
@@ -474,6 +582,35 @@ let π = CGFloat(M_PI)
 	
 	override func intrinsicContentSize() -> CGSize {
 		return CGSizeMake(30.0, 30.0)
+	}
+}
+
+@IBDesignable class ColorPickerCrossView: UIView {
+	@IBInspectable var width: CGFloat = 2.0
+	@IBInspectable var color: UIColor = UIColor.whiteColor()
+	
+	override func drawRect(rect: CGRect) {
+		let ctx = UIGraphicsGetCurrentContext()
+		
+		var path = UIBezierPath()
+		
+		color.setStroke()
+		
+		CGContextTranslateCTM(ctx, rect.width/2, rect.height/2)
+		CGContextRotateCTM(ctx, π/4)
+		
+		CGContextTranslateCTM(ctx, -rect.width/2, -rect.height/2)
+		
+		path = UIBezierPath()
+		path.moveToPoint(CGPoint(x: width * 2, y: bounds.height/2))
+		path.addLineToPoint(CGPoint(x: bounds.width - width * 2, y: bounds.height/2))
+		
+		path.moveToPoint(CGPoint(x: bounds.width/2, y: width * 2))
+		path.addLineToPoint(CGPoint(x: bounds.width/2, y: bounds.height - width * 2))
+		
+		path.lineWidth = width/2
+		
+		path.stroke()
 	}
 }
 
