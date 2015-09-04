@@ -304,7 +304,7 @@ protocol ColorPickerDelegate {
 		//put them on screen
 		for buttonToAdd in self.colorButtons {
 			if buttonToAdd.superview == nil {
-				buttonToAdd.setTranslatesAutoresizingMaskIntoConstraints(false)
+				buttonToAdd.setTranslatesAutoresizingMaskIntoConstraints(true)
 				self.keyWindow.addSubview(buttonToAdd)
 			}
 			
