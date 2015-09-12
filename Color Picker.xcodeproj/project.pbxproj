@@ -160,7 +160,9 @@
 		C37E24A61B8F9E2F009E48BC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0640;
+				LastSwiftMigration = 0700;
+				LastSwiftUpdateCheck = 0700;
+				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Carl Goldsmith";
 				TargetAttributes = {
 					C37E24AD1B8F9E2F009E48BC = {
@@ -281,6 +283,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -354,6 +357,7 @@
 				INFOPLIST_FILE = "Color Picker/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "carlgoldsmith.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "Color Picker";
 				PROVISIONING_PROFILE = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -371,6 +375,7 @@
 				INFOPLIST_FILE = "Color Picker/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "carlgoldsmith.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "Color Picker";
 				PROVISIONING_PROFILE = "";
 			};
@@ -390,6 +395,7 @@
 				);
 				INFOPLIST_FILE = "Color PickerTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "carlgoldsmith.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "Color PickerTests";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Colour Picker.app/Colour Picker";
 			};
@@ -405,6 +411,7 @@
 				);
 				INFOPLIST_FILE = "Color PickerTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "carlgoldsmith.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "Color PickerTests";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Colour Picker.app/Colour Picker";
 			};

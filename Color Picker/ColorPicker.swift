@@ -50,7 +50,7 @@ protocol ColorPickerDelegate {
 	private var backgroundView: UIView {
 		if _backgroundView == nil {
 			_backgroundView = UIView(frame: keyWindow.bounds)
-			_backgroundView?.setTranslatesAutoresizingMaskIntoConstraints(false)
+			_backgroundView?.translatesAutoresizingMaskIntoConstraints = false
 			_backgroundView?.backgroundColor = .blackColor()
 			
 			_backgroundView?.alpha = 0.0
@@ -228,7 +228,7 @@ protocol ColorPickerDelegate {
 		super.init(frame: frame)
 	}
 	
-	required init(coder aDecoder: NSCoder) {
+	required init?(coder aDecoder: NSCoder) {
 		super.init(coder: aDecoder)
 	}
 	
@@ -304,7 +304,7 @@ protocol ColorPickerDelegate {
 		//put them on screen
 		for buttonToAdd in self.colorButtons {
 			if buttonToAdd.superview == nil {
-				buttonToAdd.setTranslatesAutoresizingMaskIntoConstraints(true)
+				buttonToAdd.translatesAutoresizingMaskIntoConstraints = true
 				self.keyWindow.addSubview(buttonToAdd)
 			}
 			
@@ -558,7 +558,7 @@ let π = CGFloat(M_PI)
 		let ctx = UIGraphicsGetCurrentContext()
 		let newRect = self.bounds.rectThatFitsInsideSelfWithStrokeWidth(borderWidth)
 		
-		var path = UIBezierPath(ovalInRect: newRect)
+		let path = UIBezierPath(ovalInRect: newRect)
 		CGContextBeginPath(ctx)
 		CGContextAddPath(ctx, path.CGPath)
 		
@@ -567,13 +567,13 @@ let π = CGFloat(M_PI)
 		CGContextSetStrokeColorWithColor(ctx, self.borderColor.CGColor)
 		CGContextSetLineWidth(ctx, self.borderWidth)
 		
-		CGContextDrawPath(ctx, kCGPathFillStroke)
+		CGContextDrawPath(ctx, CGPathDrawingMode.FillStroke)
 	}
 	
-	override func animationDidStop(anim: CAAnimation!, finished flag: Bool) {
-			println("About to remove")
+	override func animationDidStop(anim: CAAnimation, finished flag: Bool) {
+			print("About to remove")
 			if !isShowing {
-				println("Removing")
+				print("Removing")
 				self.crossView.removeFromSuperview()
 				self._crossView = nil
 			}
@@ -581,7 +581,7 @@ let π = CGFloat(M_PI)
 	
 	func configureSnapBehaviour() {
 		self.snapBehaviour = UISnapBehavior(item: self, snapToPoint: self.center)
-		println(self.center)
+		print(self.center)
 	}
 	
 	override func intrinsicContentSize() -> CGSize {
