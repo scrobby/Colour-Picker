@@ -27,10 +27,20 @@ SOFTWARE.
 import Foundation
 import UIKit
 
+//define π for easy access
+let π = CGFloat(M_PI)
+
+//define error types
+enum ColorPickerError: ErrorType {
+	case TotalAngleTooLarge(message: String)
+}
+
+
 protocol ColorPickerDelegate {
 	func colorPickerDidSelectColor(picker: ColorPicker, color: UIColor)
 	func colorPickerDidCancel(picker: ColorPicker)
 }
+
 
 @IBDesignable class ColorPicker: UIView {
 	//MARK: Entirely calculated variables
@@ -63,6 +73,7 @@ protocol ColorPickerDelegate {
 	}
 	
 	//MARK: Colors
+	///An array of UIColor objects that will be displayed by the picker
 	var colors = Array<UIColor>() {
 		didSet {
 			_colorButtons = nil //ensures that the buttons are created again after a colour is added/removed
@@ -74,6 +85,7 @@ protocol ColorPickerDelegate {
 			self.currentColorButton.color = currentColor
 		}
 	}
+	///The colour currently being displayed at the center of the picker
 	var currentColor: UIColor {
 		if _currentColor == nil {
 			_currentColor = startColor
@@ -84,7 +96,8 @@ protocol ColorPickerDelegate {
 	
 	
 	//MARK: Angles
-	var _startAngle: Int?
+	private var _startAngle: Int?
+	///The angle at which the first colour will be displayed. 0° is at the top, can be a value of up to 360°.
 	var startAngle: Int {
 		get {
 			if _startAngle == nil {
@@ -103,6 +116,7 @@ protocol ColorPickerDelegate {
 	}
 	
 	private var _endAngle: Int?
+	///The angle at which the final colour will be. Can be up to 359°. If angleOfDisplay is set, there is no need to set this property.
 	var endAngle: Int {
 		get {
 			if _endAngle == nil {
@@ -120,11 +134,13 @@ protocol ColorPickerDelegate {
 				_endAngle = 359 - startAngle
 			}
 			
+			//force the angle of display to recalculate when it is called
 			_angleOfDisplay = nil
 		}
 	}
 	
 	private var _angleOfDisplay: Int?
+	///How far the colours should appear around the circle. Can be up to 359°. If endAngle is set, there is no need to set this property.
 	var angleOfDisplay: Int {
 		get {
 			var proposedAngle = 180
@@ -150,6 +166,7 @@ protocol ColorPickerDelegate {
 		set {
 			_angleOfDisplay = newValue
 			
+			//force the end angle to recalculate when it is next called
 			_endAngle = nil
 		}
 	}
@@ -157,6 +174,7 @@ protocol ColorPickerDelegate {
 	//MARK: Buttons
 	//TODO: Make it possible to add different shapes
 	private var _colorButtons: Array<ColorPickerButton>?
+	///The ColorPickerButton objects that will be displayed by the ColorPicker.
 	var colorButtons: Array<ColorPickerButton> {
 		if _colorButtons == nil {
 			_colorButtons = Array<ColorPickerButton>()
@@ -176,6 +194,7 @@ protocol ColorPickerDelegate {
 	}
 	
 	private var _currentColorButton: ColorPickerButton?
+	///The ColorPickerButton in the centre, displaying the colour currently selected by the Picker.
 	var currentColorButton: ColorPickerButton {
 		if _currentColorButton == nil {
 			_currentColorButton = ColorPickerButton()
@@ -190,22 +209,41 @@ protocol ColorPickerDelegate {
 	}
 	
 	//MARK: Other Variables
+	///Determines in which direction the position and animation should occur.
 	var clockwise = false
+	
+	///Determines how far from the centre the buttons should be displayed.
 	var radius: CGFloat = 60.0
+	
+	//The delegate of the ColorPicker.
 	var delegate: ColorPickerDelegate?
 	
+	//The border colour displayed by all of the ColorPickerButton objects.
 	@IBInspectable var borderColor: UIColor = .whiteColor()
+	
+	//The width of the border displayed by all the ColorPickerButton onjets.
 	@IBInspectable var borderWidth: CGFloat = 2.0
-	@IBInspectable var startColor: UIColor = .redColor()
+	
+	///Used only for ColorPickers created in IB.
+	@IBInspectable private var startColor: UIColor = .redColor()
 	
 	
 	//MARK: - Initialisers
-	//// All the angles in here should be done as integers, up to the value of 359°
-	convenience init(anchorPoint: CGPoint, colors: Array<UIColor>, frame: CGRect, delegate: ColorPickerDelegate?) {
+	
+	/// Initialises a ColourPicker object with the default settings.
+	/// - Parameter colors: The UIColor objects that should be displayed by the picker.
+	/// - Parameter frame: The CGRect in which the picker should be drawn (this should be the size of only one ColorPickerButton: the rest will be displayed around it, outside of the frame.
+	/// - Parameter delegate: The delegate for the ColourPicker. Must conform to ColorPickerDelegate.
+	convenience init(colors: Array<UIColor>, frame: CGRect, delegate: ColorPickerDelegate?) {
 		self.init(colors: colors, startAngle: 0, angleOfDisplay: 180, frame: frame)
 		self.delegate = delegate
 	}
 	
+	/// Initialises a ColourPicker object with a few more parameters. A delegate must be set after.
+	/// - Parameter colors: The UIColor objects that should be displayed by the picker.
+	/// - Parameter startAngle: The angle at which the first ColourPicker button should be displayed
+	/// - Parameter angleOfDisplay: The total angle over which the buttons should be displayed. This should not exceed 360° or it will automatically be capped.
+	/// - Parameter frame: The CGRect in which the picker should be drawn (this should be the size of only one ColorPickerButton: the rest will be displayed around it, outside of the frame.
 	init(colors: Array<UIColor>, startAngle: Int, angleOfDisplay: Int, frame: CGRect) {
 		self.colors = colors
 		
@@ -215,6 +253,11 @@ protocol ColorPickerDelegate {
 		self.angleOfDisplay = angleOfDisplay
 	}
 	
+	/// Initialises a ColourPicker object with a few more parameters. A delegate must be set after.
+	/// - Parameter colors: The UIColor objects that should be displayed by the picker.
+	/// - Parameter startAngle: The angle at which the first ColourPicker button should be displayed
+	/// - Parameter endAngle: The final angle at which the buttons should be displayed. The difference between this and the **startAngle** should not exceed 360°.
+	/// - Parameter frame: The CGRect in which the picker should be drawn (this should be the size of only one ColorPickerButton: the rest will be displayed around it, outside of the frame.
 	init(colors: Array<UIColor>, startAngle: Int, endAngle: Int, frame: CGRect) {
 		self.colors = colors
 		
@@ -245,16 +288,26 @@ protocol ColorPickerDelegate {
 	
 	
 	//MARK: - Setters
+	/// Sets the colour of the main ColorPickerButton.
+	/// - Parameter color: The colour to be displayed.
 	func setCurrentColor(color: UIColor) {
 		self._currentColor = color
 	}
 	
+	/// Will be true if the ColourPicker is currently visible
 	var displayed = false
-	var storedCenter: CGPoint?
-	var originalCenter: CGPoint?
+	
+	/// The center of the button relative to the key window
+	private var storedCenter: CGPoint?
+	
+	// The center of the button in its original view
+	private var originalCenter: CGPoint?
 	
 	
 	//MARK: - Actions
+	/// Called when the main colour button is tapped.
+	/// Will either show or hide the picker
+	/// - Parameter sender: The button which was tapped.
 	func didPressSelectedColorButton(sender: ColorPickerButton) {
 		if displayed == false {
 			self.show({ () -> Void in
@@ -269,6 +322,8 @@ protocol ColorPickerDelegate {
 		}
 	}
 	
+	/// Called when one of the other colour buttons was tapped.
+	/// - Parameter sender: The button which was tapped.
 	func didPressColorButton(sender: ColorPickerButton) {
 		self.delegate?.colorPickerDidSelectColor(self, color: sender.color)
 		self.dismiss(sender, completion: { () -> Void in
@@ -276,7 +331,9 @@ protocol ColorPickerDelegate {
 		})
 	}
 	
-	func backgroundTapped() {
+	/// Called when the background has been tapped.
+	/// Will cause the picker to react as though it has been cancelled.
+	private func backgroundTapped() {
 		self.delegate?.colorPickerDidCancel(self)
 		self.dismiss(nil, completion: { () -> Void in
 			
@@ -285,6 +342,9 @@ protocol ColorPickerDelegate {
 	
 	
 	//MARK: - Showing/Dismissing
+	/// Causes the picker to show.
+	/// This results in the ColorPicker moving from its original superview into the sharedApplication's keyWindow.
+	/// - Parameter completion: A block that will be carried out once the ColourPicker has been shown.
 	func show(completion: () -> Void) {
 		self.currentColorButton.enabled = false
 		self.backgroundView.userInteractionEnabled = false
@@ -342,38 +402,54 @@ protocol ColorPickerDelegate {
 		})
 	}
 	
+	/// Causes the picker to disappear.
+	/// This results in the ColorPicker moving the sharedApplication's keyWindow to its original superview.
+	/// - Parameter completion: A block that will be carried out once the ColourPicker has been dismissed.
 	func dismiss(selectedColorButton: ColorPickerButton?, completion: () -> Void) {
+		//ensure that the colour picker cannot be dismissed/shown whilst animating
 		self.currentColorButton.enabled = false
 		self.backgroundView.userInteractionEnabled = false
 		
-		var count = 0
-		
+		//set up the animation variables
 		let totalDelay = 0.2
 		let intervalDelay = (totalDelay / Double(self.colorButtons.count))
 		let animationTime = 0.2
 		let bounceTime = 0.07
 		
+		var count = 0
+		
 		for buttonToAdd in self.colorButtons {
+			//get the current angle of the button
 			let currentAngle = self.startAngle.degreesToRadians + self.spacingAngle * CGFloat(count)
 			
+			//create a point slightly outisde of where the colour is currently positioned for bounce effect
 			let newX = self.storedCenter!.x + (self.radius + 20) * cos(currentAngle)
 			let newY = self.storedCenter!.y + (self.radius + 20) * sin(currentAngle)
 			let newPoint = CGPointMake(newX, newY)
 			
+			//set up times for the buttons to dismiss sequentially
 			var delayTime = Double(self.colorButtons.count - count) * intervalDelay
 			
+			//if the current button was the one tapped, make its delay the longest
 			if selectedColorButton == buttonToAdd {
 				delayTime = Double(self.colorButtons.count + 2) * intervalDelay
+				
+				//add the button to the top, to make it "replace" the current button
 				self.keyWindow.insertSubview(buttonToAdd, aboveSubview: self.currentColorButton)
 			}
 			
+			//perform animations
 			UIView.animateWithDuration(bounceTime, delay: delayTime, options: .CurveLinear, animations: { () -> Void in
+				//perform the initial bounce
 				buttonToAdd.center = newPoint
 				
 				}, completion: { (success: Bool) -> Void in
 					UIView.animateWithDuration(animationTime, delay: 0.0, options: .CurveEaseOut, animations: { () -> Void in
+						//move to the original centre, behind the original button
 						buttonToAdd.center = self.storedCenter!
+						
 						}, completion: { (success: Bool) -> Void in
+							//once hidden, remove the button
 							buttonToAdd.removeFromSuperview()
 					})
 			})
@@ -381,8 +457,10 @@ protocol ColorPickerDelegate {
 			count++
 		}
 		
+		//get the total time of the animation
 		var totalTime = totalDelay + animationTime + bounceTime
 		
+		//adjust the dismiss according to the overall animations
 		if selectedColorButton != nil {
 			totalTime = Double(self.colorButtons.count + 2) * intervalDelay + animationTime
 		} else {
@@ -390,18 +468,22 @@ protocol ColorPickerDelegate {
 		}
 		
 		UIView.animateWithDuration(totalTime + 0.01, animations: { () -> Void in
+			//remove the background view
 			self.backgroundView.alpha = 0.0
+			
 			}, completion: { (done: Bool) -> Void in
-				if selectedColorButton != nil {
-					self.currentColorButton.hideCloseButton(nil)
-				}
+				//hide the close button
+				self.currentColorButton.hideCloseButton(nil)
 				
-				self.currentColorButton.frame = self.bounds
+				//get rid of the background
 				self.backgroundView.removeFromSuperview()
 				self._backgroundView = nil
 				
+				//put the current colour button back in its original place
+				self.currentColorButton.frame = self.bounds
 				self.addSubview(self.currentColorButton)
 				
+				//reset everything
 				self.displayed = false
 				self.currentColorButton.enabled = true
 				
@@ -412,13 +494,7 @@ protocol ColorPickerDelegate {
 
 
 //MARK: - Color Picker Button
-
-enum ColorPickerButtonShape {
-	case Circle
-}
-
-let π = CGFloat(M_PI)
-
+/// A button that is displayed by a ColourPicker.
 @IBDesignable class ColorPickerButton: UIButton {
 	var color: UIColor = .redColor() {
 		didSet {
@@ -453,8 +529,6 @@ let π = CGFloat(M_PI)
 		
 		return _crossView!
 	}
-	
-	var snapBehaviour: UISnapBehavior?
 	
 	private var _backgroundColor: UIColor?
 	override var backgroundColor: UIColor? {
@@ -636,36 +710,5 @@ extension Int {
 extension CGRect {
 	func rectThatFitsInsideSelfWithStrokeWidth(width: CGFloat) -> CGRect {
 		return CGRectMake(self.origin.x + width, self.origin.y + width, self.width - width * 2, self.height - width * 2)
-	}
-}
-
-extension UIColor {
-	func adjustLightness(value: CGFloat) -> UIColor {
-		let newRed = redValue * value
-		let newGreen = greenValue * value
-		let newBlue = blueValue * value
-		return UIColor(red: newRed, green: newGreen, blue: newBlue, alpha: 1.0)
-	}
-	
-	var RGBValues: (red: CGFloat, green: CGFloat, blue: CGFloat) {
-		let components = CGColorGetComponents(self.CGColor)
-		
-		let red = components[0]
-		let green = components[1]
-		let blue = components[2]
-		
-		return (red, green, blue)
-	}
-	
-	var redValue: CGFloat {
-		return self.RGBValues.red
-	}
-	
-	var greenValue: CGFloat {
-		return self.RGBValues.green
-	}
-	
-	var blueValue: CGFloat {
-		return self.RGBValues.blue
 	}
 }

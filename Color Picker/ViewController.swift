@@ -65,8 +65,7 @@ class ViewController: UIViewController, ColorPickerDelegate {
 	}
 	
 	@IBAction func clockwiseButtonTapped(sender: UISwitch) {
-		self.colorPicker.clockwise = sender.on
-		
+		self.colorPicker.clockwise = sender.on		
 	}
 	
 	//MARK: - ColorPickerDelegate Methods
