@@ -653,11 +653,6 @@ protocol ColorPickerDelegate {
 			}
 	}
 	
-	func configureSnapBehaviour() {
-		self.snapBehaviour = UISnapBehavior(item: self, snapToPoint: self.center)
-		print(self.center)
-	}
-	
 	override func intrinsicContentSize() -> CGSize {
 		return CGSizeMake(30.0, 30.0)
 	}
