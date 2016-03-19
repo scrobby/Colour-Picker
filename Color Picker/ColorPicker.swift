@@ -27,15 +27,6 @@ SOFTWARE.
 import Foundation
 import UIKit
 
-//define π for easy access
-let π = CGFloat(M_PI)
-
-//define error types
-enum ColorPickerError: ErrorType {
-	case TotalAngleTooLarge(message: String)
-}
-
-
 protocol ColorPickerDelegate {
 	func colorPickerDidSelectColor(picker: ColorPicker, color: UIColor)
 	func colorPickerDidCancel(picker: ColorPicker)
@@ -43,6 +34,9 @@ protocol ColorPickerDelegate {
 
 
 @IBDesignable class ColorPicker: UIView {
+    //define π for easy access
+    private let π = CGFloat(M_PI)
+    
 	//MARK: Entirely calculated variables
 	private var spacingAngle: CGFloat {
 		let spacing = (CGFloat(self.angleOfDisplay)/CGFloat(self.colors.count - 1)).degreesToRadians
@@ -496,6 +490,9 @@ protocol ColorPickerDelegate {
 //MARK: - Color Picker Button
 /// A button that is displayed by a ColourPicker.
 @IBDesignable class ColorPickerButton: UIButton {
+    //define π for easy access
+    private let π = CGFloat(M_PI)
+    
 	var color: UIColor = .redColor() {
 		didSet {
 			self.setNeedsDisplay()
@@ -659,6 +656,9 @@ protocol ColorPickerDelegate {
 }
 
 @IBDesignable class ColorPickerCrossView: UIView {
+    //define π for easy access
+    private let π = CGFloat(M_PI)
+    
 	@IBInspectable var width: CGFloat = 2.0
 	@IBInspectable var color: UIColor = UIColor.whiteColor()
 	
