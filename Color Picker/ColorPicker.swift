@@ -333,7 +333,7 @@ protocol ColorPickerDelegate {
 	
 	/// Called when the background has been tapped.
 	/// Will cause the picker to react as though it has been cancelled.
-	private func backgroundTapped() {
+	func backgroundTapped() {
 		self.delegate?.colorPickerDidCancel(self)
 		self.dismiss(nil, completion: { () -> Void in
 			
