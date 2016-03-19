@@ -14,9 +14,11 @@ The following properties are @IBInspectable:
 #### Programmatically
 If for whatever reason you cannot initialise the ColourPicker in Interface Builder, there is a convenience initialiser that will set up an instance of a ColourPicker with default values, as well as two other intiialisers that allow for more fine-grained customisation:
 
-- `init(colors: Array<UIColor>, frame: CGRect, delegate: ColorPickerDelegate?)`
-- `init(colors: Array<UIColor>, startAngle: Int, angleOfDisplay: Int, frame: CGRect)`
-- `init(colors: Array<UIColor>, startAngle: Int, endAngle: Int, frame: CGRect)`
+```swift
+init(colors: Array<UIColor>, frame: CGRect, delegate: ColorPickerDelegate?)
+init(colors: Array<UIColor>, startAngle: Int, angleOfDisplay: Int, frame: CGRect)
+init(colors: Array<UIColor>, startAngle: Int, endAngle: Int, frame: CGRect)
+```
 
 An array of `UIColor` instances is always requied to set up the ColourPicker.
 
@@ -41,6 +43,17 @@ There are a number of variables that can be changed in order to cusomise the loo
 
 ## Delegate
 In order for a class to receive feedback on the state of the ColourPicker, it must conform to the `ColourPickerDelegate` protocol. This contains only two methods to inform the delegate of colour selection and cancellation.
-> Note: I plan to add a block-based method instead of a delegate that will allow for animations to happen in time with the dismissal of the ColourPicker. For now, if you wish the animate alongside the ColourPicker dismissing, use an animation time of 0.6 when `colourPickerDidSelectColor:` is called
+
+> Note: I plan to add a block-based method instead of a delegate that will allow for animations to happen in time with the dismissal of the ColourPicker. For now, if you wish the animate alongside the ColourPicker dismissing, use an animation time of 0.6 when `colourPickerDidSelectColor:` is called.
+
 - **`colourPickerDidSelectColor(picker: ColourPicker, color: UIColor)`** Calls the delegate informing that the colour was picked. Provides the ColourPicker that was used and the `UIColor` that was chosen.
 - **`colourPickerDidCancel(picker: ColourPicker)`** Calls the delegate informing that the ColourPicker cancelled. Provides the ColourPicker that cancelled.
+
+## TO DO
+These are some of the changes I’d like to make to the ColourPicker project.
+- [x] Make the cross in the centre rotate/scale in and out instead of just fading.
+- [ ] Add images to README.md
+- [ ] Replace delegate with block-based callbacks that allow for syncronisation of animations.
+- [ ] Add a parameter that allows for the total animation time to be specificed.
+- [ ] Allow a custom path to be passed to the ColourPicker, over which the ColourPickerViews will be drawn.
+- [ ] Make a spiral version that allows for even more colours, moving outwards from the centre?
